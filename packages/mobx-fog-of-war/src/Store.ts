@@ -8,7 +8,7 @@ export class StoreItem<D,E> {
     @observable data: D|undefined;
     @observable hasError = false;
     @observable error: E|undefined;
-    @observable time = new Date();
+    @observable time = new Date(Date.now());
 }
 
 export interface NextRequest<Args> {
@@ -34,10 +34,6 @@ export interface StoreOptions<Args,Data,Err> {
 }
 
 export interface GetOptions {
-    maxAge?: number;
-}
-
-export interface UseGetOptions {
     maxAge?: number;
 }
 
@@ -112,7 +108,7 @@ export class Store<Args,Data,Err> {
 
             if(maxAge === -1) return false;
             if(maxAge === 0) return true;
-            return new Date() > new Date(item.time.getTime() + (maxAge * 1000));
+            return new Date(Date.now()) > new Date(item.time.getTime() + maxAge);
         };
 
         if(!item || (!item.loading && (!item.hasData || hasItemExpired(item)))) {
@@ -173,7 +169,7 @@ export class Store<Args,Data,Err> {
         const key = argsToKey(args);
         const item = this._getOrCreate(key);
         item.loading = loading;
-        item.time = new Date();
+        item.time = new Date(Date.now());
     };
 
     // setData() action
@@ -191,7 +187,7 @@ export class Store<Args,Data,Err> {
         item.hasError = false;
         item.error = undefined;
         item.data = data;
-        item.time = new Date();
+        item.time = new Date(Date.now());
     };
 
     // setData() action
@@ -207,7 +203,7 @@ export class Store<Args,Data,Err> {
         item.loading = false;
         item.hasError = true;
         item.error = error;
-        item.time = new Date();
+        item.time = new Date(Date.now());
     };
 
     // remove() action
@@ -226,8 +222,8 @@ export class Store<Args,Data,Err> {
     // because React doesn't like side effects during a render
     // call it every render because this'll be deduped upstream anyway
 
-    useGet = (args: Args, {maxAge}: UseGetOptions = {}): StoreItem<Data,Err>|undefined => {
-        useEffect(() => void this.get(args, {maxAge}));
+    useGet = (args: Args, options: GetOptions): StoreItem<Data,Err>|undefined => {
+        useEffect(() => void this.get(args, options));
         return this.read(args);
     };
 }
