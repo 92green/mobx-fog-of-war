@@ -9,7 +9,7 @@ interface User {
 
 type UserArgs = string;
 
-const fakeGetUser = async (id: UserArgs): Promise<User,string> => {
+const fakeGetUser = async (id: UserArgs): Promise<User> => {
 // eslint-disable-next-line no-console
     console.log(`User Fetcher: fetching user:`, id);
     await new Promise(resolve => setTimeout(resolve, 1000));
@@ -46,7 +46,7 @@ interface CommentArgs {
     userId: string
 }
 
-const fakeGetComments = async (args: CommentArgs): Promise<Comment[],string> => {
+const fakeGetComments = async (args: CommentArgs): Promise<Comment[]> => {
     // eslint-disable-next-line no-console
     console.log(`Comments Fetcher: fetching comments`, args);
     await new Promise(resolve => setTimeout(resolve, 1400));
@@ -129,7 +129,7 @@ interface Place {
 
 type PlaceArgs = string;
 
-const fakeBatchGetPlace = async (ids: PlaceArgs[]): Promise<Place[],string> => {
+const fakeBatchGetPlace = async (ids: PlaceArgs[]): Promise<Place[]> => {
 // eslint-disable-next-line no-console
     console.log(`Place Fetcher: fetching places`, ids);
     await new Promise(resolve => setTimeout(resolve, 1000));
