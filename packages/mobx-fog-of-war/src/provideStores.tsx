@@ -9,7 +9,7 @@ export const provideStores = <S,>(stores: S): [React.FunctionComponent<unknown>,
     const useStore = (): S => {
         const storesFromContext: S|undefined = React.useContext(StoreContext);
         if(!storesFromContext) {
-            throw new Error('No store provider provided');
+            throw new Error('No StoreProvider provided');
         }
         return storesFromContext;
     };

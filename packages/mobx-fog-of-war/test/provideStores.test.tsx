@@ -24,4 +24,22 @@ describe('provideStores', () => {
 
         expect(wrapper.find('h1').text()).toBe('stores: STORES');
     });
+
+    it('should throw error if useStore() is used but no store is provided', () => {
+        const stores = 'STORES';
+        const [,useStore] = provideStores(stores);
+
+        const MyComponent = () => {
+            try {
+                const storesFromContext = useStore();
+                return <h1>stores: {storesFromContext}</h1>;
+            } catch(e) {
+                return <h1>error: {e.message}</h1>;
+            }
+        };
+
+        const wrapper = mount(<MyComponent />);
+
+        expect(wrapper.find('h1').text()).toBe('error: No StoreProvider provided');
+    });
 });
