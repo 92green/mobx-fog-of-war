@@ -166,20 +166,8 @@ const fakeBatchGetPlace = async (ids: PlaceArgs[]): Promise<Place[]> => {
 //
 
 import {autorun, toJS} from 'mobx';
-import {Store, rxRequest, asyncRequest, sortByArgsArray} from 'mobx-fog-of-war';
-import type {Receive, StoreItem} from 'mobx-fog-of-war';
-import {from} from 'rxjs';
-
-//
-// store instances and rx stuff for clever requests
-//
-
-import {bufferCount} from 'rxjs/operators';
-import {bufferTime} from 'rxjs/operators';
-import {mergeMap} from 'rxjs/operators';
-import {concatMap} from 'rxjs/operators';
-
-// stores
+import {Store, rxRequest, asyncRequest, rxBatch} from 'mobx-fog-of-war';
+import type {StoreItem} from 'mobx-fog-of-war';
 
 const userStore = new Store<UserArgs,User,string>({
     name: 'User Store',
@@ -187,36 +175,22 @@ const userStore = new Store<UserArgs,User,string>({
     request: asyncRequest(fakeGetUser)
 });
 
-// eslint-disable-next-line no-console
-// userStore.log = console.log;
-
 const commentListStore = new Store<CommentArgs,Comment[],string>({
     name: 'Comment list Store',
     request: asyncRequest(fakeGetComments)
 });
 
-// eslint-disable-next-line no-console
-{/*commentListStore.log = console.log;*/}
-
 const placeStore = new Store<PlaceArgs,Place,string>({
     name: 'Place Store!',
     request: rxRequest(
-        // collect requests for 100ms at a time
-        bufferTime(100),
-        // split batches apart that have more than 2 items (for illustrative purposes)
-        mergeMap((argsArray: PlaceArgs[]) => from(argsArray).pipe(
-            bufferCount(2)
-        )),
-        // make requests
-        concatMap(async (argsArray: PlaceArgs[]): Promise<Array<Receive<PlaceArgs,Place,string>>> => {
-            try {
-                const items = await fakeBatchGetPlace(argsArray);
-                return sortByArgsArray(argsArray, items, item => item.id, () => 'not found');
-            } catch(error) {
-                return argsArray.map(args => ({args, error}));
-            }
-        }),
-        mergeMap(items => from(items))
+        rxBatch({
+            request: argsArray => fakeBatchGetPlace(argsArray),
+            bufferTime: 100,
+            batch: 10,
+            getArgs: item => item.id,
+            requestError: (reason: string) => reason,
+            missingError: () => 'not found'
+        })
     )
 });
 
@@ -247,7 +221,7 @@ autorun(() => {
 // user interface
 //
 
-import React, {useEffect} from 'react';
+import React from 'react';
 import {useState} from 'react';
 
 import {observer} from 'mobx-react';
@@ -283,15 +257,8 @@ export const Absolute = styled.div({position: 'absolute'}, styledProps);
 
 // put stores in react context
 
-const StoreContext = React.createContext(undefined);
-const StoreProvider = (props) => <StoreContext.Provider value={stores} {...props} />;
-const useStore = (): MyStores => {
-    const stores: MyStores = React.useContext(StoreContext);
-    if(!stores) {
-        throw new Error('No store provider provided');
-    }
-    return stores;
-};
+import {provideStores} from 'mobx-fog-of-war';
+const [StoreProvider, useStore] = provideStores<MyStores>(stores);
 
 // exciting top component with store provider
 
