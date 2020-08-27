@@ -403,21 +403,31 @@ describe('Store', () => {
     });
 
     describe('useGet', () => {
+
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        jest.spyOn(React, "useEffect").mockImplementation(() => {});
+
         it('should call useEffect() and return read()', () => {
-
-            jest.spyOn(React, "useEffect").mockImplementation(() => 123);
-
             const store = new Store<number,string,string>();
             store.get = jest.fn();
 
-            store.useGet(1, {maxAge: 1000});
+            store.useGet(1);
 
             expect(mocked(React.useEffect)).toHaveBeenCalledTimes(1);
             mocked(React.useEffect).mock.calls[0][0]();
 
             expect(mocked(store.get)).toHaveBeenCalledTimes(1);
             expect(mocked(store.get).mock.calls[0][0]).toBe(1);
-            expect(mocked(store.get).mock.calls[0][1]).toEqual({maxAge: 1000});
+            expect(mocked(store.get).mock.calls[0][1]).toBe(undefined);
+
+            store.useGet(2, {maxAge: 1000});
+
+            expect(mocked(React.useEffect)).toHaveBeenCalledTimes(2);
+            mocked(React.useEffect).mock.calls[1][0]();
+
+            expect(mocked(store.get)).toHaveBeenCalledTimes(2);
+            expect(mocked(store.get).mock.calls[1][0]).toBe(2);
+            expect(mocked(store.get).mock.calls[1][1]).toEqual({maxAge: 1000});
         });
     });
 });

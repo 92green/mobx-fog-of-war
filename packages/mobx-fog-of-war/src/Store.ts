@@ -222,7 +222,7 @@ export class Store<Args,Data,Err> {
     // because React doesn't like side effects during a render
     // call it every render because this'll be deduped upstream anyway
 
-    useGet = (args: Args, options: GetOptions): StoreItem<Data,Err>|undefined => {
+    useGet = (args: Args, options?: GetOptions): StoreItem<Data,Err>|undefined => {
         useEffect(() => void this.get(args, options));
         return this.read(args);
     };
