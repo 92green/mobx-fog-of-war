@@ -2,19 +2,12 @@ import {Store, rxRequest} from '../src/index';
 import {map} from 'rxjs/operators';
 import {mocked} from 'ts-jest/utils';
 
-interface Place {
-    id: string;
-    name: string;
-}
-
-type PlaceArgs = string;
-
 describe('rxRequest', () => {
     it('should stream changes through observable and receive data', () => {
 
-        const placeStore = new Store<PlaceArgs,Place,string>({
+        const placeStore = new Store<number,string,string>({
             request: rxRequest(
-                map((args: PlaceArgs) => {
+                map((args: number) => {
                     return {
                         args,
                         data: `data for ${args}`
@@ -24,23 +17,23 @@ describe('rxRequest', () => {
         });
 
         placeStore.receive = jest.fn();
-        placeStore.request('one');
+        placeStore.request(1);
 
         expect(mocked(placeStore.receive)).toHaveBeenCalledTimes(1);
         expect(mocked(placeStore.receive).mock.calls[0][0]).toEqual({
-            args: 'one',
-            data: 'data for one'
+            args: 1,
+            data: 'data for 1'
         });
 
-        placeStore.request('one');
+        placeStore.request(1);
         expect(mocked(placeStore.receive)).toHaveBeenCalledTimes(2);
     });
 
     it('should stream changes through observable and receive error', () => {
 
-        const placeStore = new Store<PlaceArgs,Place,string>({
+        const placeStore = new Store<number,string,string>({
             request: rxRequest(
-                map((args: PlaceArgs) => {
+                map((args: number) => {
                     return {
                         args,
                         error: 'ARGH!'
@@ -50,11 +43,11 @@ describe('rxRequest', () => {
         });
 
         placeStore.receive = jest.fn();
-        placeStore.request('one');
+        placeStore.request(1);
 
         expect(mocked(placeStore.receive)).toHaveBeenCalledTimes(1);
         expect(mocked(placeStore.receive).mock.calls[0][0]).toEqual({
-            args: 'one',
+            args: 1,
             error: 'ARGH!'
         });
     });
