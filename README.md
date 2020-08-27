@@ -4,12 +4,12 @@
 
 A simple, lazy front-end request coordinator and cache for [React](https://reactjs.org/) and [mobx](https://mobx.js.org/). Load your data by simply trying to view it, and build up a picture of your server's data over time.
 
-- Efficient updates with [mobx](https://mobx.js.org/) observables.
+- Efficient UI updates with [mobx](https://mobx.js.org/) observables.
 - Connects to [rxjs](https://rxjs-dev.firebaseapp.com/) easily for fancy request behaviour.
-- No data preprocessing, normalisation or schemas.
+- No data pre-processing, normalisation or schemas.
 - Control your cache directly.
 
-You're not required to think about "requesting" data in advance. Just try to access it using `store.get()` or `store.useGet()` and it'll fetch new data if the data in your cache is missing or stale. This makes it easy to do your data joins right in your components, keeping your data-joining-logic as minimal as possible.
+You're not required to think about "requesting" data in advance. Just try to access it using `store.get()` or the `store.useGet()` React hook, and if the corresponding data in your cache is missing or stale it'll prompt your request function to go and load the data. This makes it easy to do your data joins on the front-end, right in your components, keeping your data-joining-logic as minimal as possible.
 
 If your _server_ is performing data joins (as many graphql APIs tend to do) then `mobx-fog-of-war` may not be right for you. In this case check out [enty](https://github.com/92green/enty) for normalised state management.
 

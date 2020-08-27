@@ -171,7 +171,7 @@ import type {StoreItem} from 'mobx-fog-of-war';
 
 const userStore = new Store<UserArgs,User,string>({
     name: 'User Store',
-    maxAge: 10,
+    staleTime: 10,
     request: asyncRequest(fakeGetUser)
 });
 
@@ -338,7 +338,7 @@ const UserView = observer(props => {
     // if(userFromStore.error) return <Box>Error: {userFromStore.error}</Box>;
     // if(!userFromStore.data) return <Box>User not found</Box>;
 
-    const retry = () => userStore.get(userId, {maxAge: 0});
+    const retry = () => userStore.get(userId, {staleTime: 0});
 
     return <LoadingBoundary dependencies={[userFromStore]} retry={retry}>
         {() => {

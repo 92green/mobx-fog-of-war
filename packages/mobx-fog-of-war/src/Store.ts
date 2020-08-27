@@ -29,18 +29,18 @@ export type Logger = (...args: unknown[]) => unknown;
 export interface StoreOptions<Args,Data,Err> {
     name?: string;
     request?: (store: Store<Args,Data,Err>) => void;
-    maxAge?: number;
+    staleTime?: number;
     log?: Logger;
 }
 
 export interface GetOptions {
-    maxAge?: number;
+    staleTime?: number;
 }
 
 export class Store<Args,Data,Err> {
 
     name: string;
-    maxAge: number;
+    staleTime: number;
     log: Logger;
 
     @observable cache: Map<string, StoreItem<Data,Err>> = new Map();
@@ -54,14 +54,14 @@ export class Store<Args,Data,Err> {
         const {
             name = 'unnamed',
             request,
-            maxAge = -1,
+            staleTime = -1,
             // eslint-disable-next-line @typescript-eslint/no-empty-function
             log = () => {}
         } = options;
 
         this.name = name;
         this.log = log;
-        this.maxAge = maxAge;
+        this.staleTime = staleTime;
 
         if(request) {
             request(this);
@@ -102,13 +102,13 @@ export class Store<Args,Data,Err> {
         const item = this.cache.get(key);
 
         const hasItemExpired = (item: StoreItem<Data,Err>): boolean => {
-            const maxAge: number = typeof options.maxAge === 'number'
-                ? options.maxAge
-                : this.maxAge;
+            const staleTime: number = typeof options.staleTime === 'number'
+                ? options.staleTime
+                : this.staleTime;
 
-            if(maxAge === -1) return false;
-            if(maxAge === 0) return true;
-            return new Date(Date.now()) > new Date(item.time.getTime() + maxAge);
+            if(staleTime === -1) return false;
+            if(staleTime === 0) return true;
+            return new Date(Date.now()) > new Date(item.time.getTime() + staleTime);
         };
 
         if(!item || (!item.loading && (!item.hasData || hasItemExpired(item)))) {

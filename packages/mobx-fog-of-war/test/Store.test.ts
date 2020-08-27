@@ -311,9 +311,9 @@ describe('Store', () => {
             expect(mocked(store.request).mock.calls[0][0]).toBe(1);
         });
 
-        it('if maxAge = 0 is set via StoreOptions, should request() again once data was received', () => {
+        it('if staleTime = 0 is set via StoreOptions, should request() again once data was received', () => {
             const store = new Store<number,string,string>({
-                maxAge: 0
+                staleTime: 0
             });
 
             store.request = jest.fn(store.request);
@@ -327,26 +327,26 @@ describe('Store', () => {
             expect(store.nextRequest && store.nextRequest.requestId).toBe(2);
         });
 
-        it('if maxAge = 0 is set via GetOptions, should request() again once data was received', () => {
+        it('if staleTime = 0 is set via GetOptions, should request() again once data was received', () => {
             const store = new Store<number,string,string>();
 
             store.request = jest.fn(store.request);
 
-            store.get(1, {maxAge: 0});
+            store.get(1, {staleTime: 0});
             store.setData(1, 'one');
-            store.get(1, {maxAge: 0});
+            store.get(1, {staleTime: 0});
 
             expect(mocked(store.request)).toHaveBeenCalledTimes(2);
             expect(mocked(store.request).mock.calls[0][0]).toBe(1);
             expect(store.nextRequest && store.nextRequest.requestId).toBe(2);
         });
 
-        it('if maxAge = number is set via StoreOptions, should request() again after cached item is older than maxAge', () => {
+        it('if staleTime = number is set via StoreOptions, should request() again after cached item is older than staleTime', () => {
 
             setNow(0);
 
             const store = new Store<number,string,string>({
-                maxAge: 1000
+                staleTime: 1000
             });
 
             store.request = jest.fn(store.request);
@@ -372,7 +372,7 @@ describe('Store', () => {
             expect(store.nextRequest && store.nextRequest.requestId).toBe(2);
         });
 
-        it('if maxAge = number is set via GetOptions, should request() again after cached item is older than maxAge', () => {
+        it('if staleTime = number is set via GetOptions, should request() again after cached item is older than staleTime', () => {
 
             setNow(0);
 
@@ -380,20 +380,20 @@ describe('Store', () => {
 
             store.request = jest.fn(store.request);
 
-            store.get(1, {maxAge: 1000});
+            store.get(1, {staleTime: 1000});
             store.setData(1, 'one');
             expect(mocked(store.request)).toHaveBeenCalledTimes(1);
 
             setNow(300);
-            store.get(1, {maxAge: 1000});
+            store.get(1, {staleTime: 1000});
             expect(mocked(store.request)).toHaveBeenCalledTimes(1);
 
             setNow(800);
-            store.get(1, {maxAge: 1000});
+            store.get(1, {staleTime: 1000});
             expect(mocked(store.request)).toHaveBeenCalledTimes(1);
 
             setNow(1200);
-            store.get(1, {maxAge: 1000});
+            store.get(1, {staleTime: 1000});
             expect(mocked(store.request)).toHaveBeenCalledTimes(2);
 
             expect(mocked(store.request)).toHaveBeenCalledTimes(2);
@@ -420,14 +420,14 @@ describe('Store', () => {
             expect(mocked(store.get).mock.calls[0][0]).toBe(1);
             expect(mocked(store.get).mock.calls[0][1]).toBe(undefined);
 
-            store.useGet(2, {maxAge: 1000});
+            store.useGet(2, {staleTime: 1000});
 
             expect(mocked(React.useEffect)).toHaveBeenCalledTimes(2);
             mocked(React.useEffect).mock.calls[1][0]();
 
             expect(mocked(store.get)).toHaveBeenCalledTimes(2);
             expect(mocked(store.get).mock.calls[1][0]).toBe(2);
-            expect(mocked(store.get).mock.calls[1][1]).toEqual({maxAge: 1000});
+            expect(mocked(store.get).mock.calls[1][1]).toEqual({staleTime: 1000});
         });
     });
 });
