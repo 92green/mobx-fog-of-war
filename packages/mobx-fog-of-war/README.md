@@ -1,172 +1,90 @@
-# TSDX React w/ Storybook User Guide
+# mobx-fog-of-war ☁️ ⚔️ 🤯
 
-Congrats! You just saved yourself hours of work by bootstrapping this project with TSDX. Let’s get you oriented with what’s here and how to use it.
+![aoe](https://user-images.githubusercontent.com/345320/91411571-ddf2da80-e88b-11ea-8de7-c0f3462991f4.gif)
 
-> This TSDX setup is meant for developing React component libraries (not apps!) that can be published to NPM. If you’re looking to build a React-based app, you should use `create-react-app`, `razzle`, `nextjs`, `gatsby`, or `react-static`.
+A simple, lazy front-end request coordinator and cache for [React](https://reactjs.org/) and [mobx](https://mobx.js.org/). Load your data by simply trying to view it, and build up a picture of your server's data over time.
 
-> If you’re new to TypeScript and React, checkout [this handy cheatsheet](https://github.com/sw-yx/react-typescript-cheatsheet/)
+- Efficient updates with [mobx](https://mobx.js.org/) observables.
+- Connects to [rxjs](https://rxjs-dev.firebaseapp.com/) easily for fancy request behaviour.
+- No data preprocessing, normalisation or schemas.
+- Control your cache directly.
 
-## Commands
+You're not required to think about "requesting" data in advance. Just try to access it using `store.get()` or `store.useGet()` and it'll fetch new data if the data in your cache is missing or stale. This makes it easy to do your data joins right in your components, keeping your data-joining-logic as minimal as possible.
 
-TSDX scaffolds your new library inside `/src`, and also sets up a [Parcel-based](https://parceljs.org) playground for it inside `/example`.
+If your _server_ is performing data joins (as many graphql APIs tend to do) then `mobx-fog-of-war` may not be right for you. In this case check out [enty](https://github.com/92green/enty) for normalised state management.
 
-The recommended workflow is to run TSDX in one terminal:
+Install with `npm install react mobx mobx-react mobx-fog-of-war`
 
-```bash
-npm start # or yarn start
-```
-
-This builds to `/dist` and runs the project in watch mode so any edits you save inside `src` causes a rebuild to `/dist`.
-
-Then run either Storybook or the example playground:
-
-### Storybook
-
-Run inside another terminal:
-
-```bash
-yarn storybook
-```
-
-This loads the stories from `./stories`.
-
-> NOTE: Stories should reference the components as if using the library, similar to the example playground. This means importing from the root project directory. This has been aliased in the tsconfig and the storybook webpack config as a helper.
-
-### Example
-
-Then run the example inside another:
-
-```bash
-cd example
-npm i # or yarn to install dependencies
-npm start # or yarn start
-```
-
-The default example imports and live reloads whatever is in `/dist`, so if you are seeing an out of date component, make sure TSDX is running in watch mode like we recommend above. **No symlinking required**, we use [Parcel's aliasing](https://parceljs.org/module_resolution.html#aliases).
-
-To do a one-off build, use `npm run build` or `yarn build`.
-
-To run tests, use `npm test` or `yarn test`.
-
-## Configuration
-
-Code quality is set up for you with `prettier`, `husky`, and `lint-staged`. Adjust the respective fields in `package.json` accordingly.
-
-### Jest
-
-Jest tests are set up to run with `npm test` or `yarn test`.
-
-#### Setup Files
-
-This is the folder structure we set up for you:
-
-```txt
-/example
-  index.html
-  index.tsx       # test your component here in a demo app
-  package.json
-  tsconfig.json
-/src
-  index.tsx       # EDIT THIS
-/test
-  blah.test.tsx   # EDIT THIS
-.gitignore
-package.json
-README.md         # EDIT THIS
-tsconfig.json
-```
-
-#### React Testing Library
-
-We do not set up `react-testing-library` for you yet, we welcome contributions and documentation on this.
-
-### Rollup
-
-TSDX uses [Rollup](https://rollupjs.org) as a bundler and generates multiple rollup configs for various module formats and build settings. See [Optimizations](#optimizations) for details.
-
-### TypeScript
-
-`tsconfig.json` is set up to interpret `dom` and `esnext` types, as well as `react` for `jsx`. Adjust according to your needs.
-
-## Continuous Integration
-
-### GitHub Actions
-
-A simple action is included that runs these steps on all pushes:
-
-- Installs deps w/ cache
-- Lints, tests, and builds
-
-## Optimizations
-
-Please see the main `tsdx` [optimizations docs](https://github.com/palmerhq/tsdx#optimizations). In particular, know that you can take advantage of development-only optimizations:
+- 100% [typescript typed](https://www.typescriptlang.org/)
+- 100% tested with [jest](https://jestjs.io/), [rx marble tests](https://rxjs-dev.firebaseapp.com/guide/testing/internal-marble-tests) and [enzyme](https://github.com/enzymejs/enzyme)
+- Efficient bundling with [rollup](https://rollupjs.org/guide/en/)
+- Project setup by [tsdx](https://tsdx.io/)
+- Demo site powered by [nextjs](https://nextjs.org/)
+- Monorepo managed with [lerna](https://github.com/lerna/lerna)
 
 ```js
-// ./types/index.d.ts
-declare var __DEV__: boolean;
+import {Store, asyncRequest} from 'mobx-fog-of-war';
 
-// inside your code...
-if (__DEV__) {
-  console.log('foo');
-}
+// getUser = async (id: UserArgs): Promise<User> => ...
+// getPet = async (id: PetArgs): Promise<Pet> => ...
+
+const userStore = new Store<string,User,Error>({
+    name: 'User Store',
+    maxAge: 10000,
+    request: asyncRequest(getUser)
+});
+
+const petStore = new Store<string,Pet,Error>({
+    name: 'Pet Store',
+    maxAge: 10000,
+    request: asyncRequest(getPet)
+});
+
+const [StoreProvider, useStore] = provideStores({userStore, petStore});
+
+// ...
+
+import React from 'react';
+import {observer} from 'mobx-react';
+import 'mobx-react/batchingForReactDom';
+
+const Main = (props) => {
+    return <StoreProvider>
+        <UserView userId={props.userId} />
+    </StoreProvider>;
+};
+
+const Loader = (props) => {
+    let {storeItem, children} = props;
+    if(!storeItem) return null;
+    if(storeItem.loading) return <div>Loading</div>;
+    if(storeItem.hasError) return <div>Error: {storeItem.error.message}</div>;
+    if(!storeItem.hasData) return <div>Not found</div>;
+    return children();
+};
+
+const UserView = observer(props => {
+    const {userStore} = useStore();
+    const userFromStore = userStore.useGet(props.userId);
+    const user = userFromStore.data;
+
+    return <Loader storeItem={userFromStore}>
+        {() => <div>
+            Name: {user.name}
+            Pets: {user.petIds.map(petId => <PetView key={petId} petId={petId} />)}
+        </div>}
+    </Loader>;
+});
+
+const PetView = observer(props => {
+    const {petStore} = useStore();
+    const petFromStore = userStore.useGet(props.petId);
+    const pet = petFromStore.data;
+
+    return <Loader storeItem={petFromStore}>
+        {() => <div>
+            Pet name: {pet.name}
+        </div>}
+    </Loader>;
+});
 ```
-
-You can also choose to install and use [invariant](https://github.com/palmerhq/tsdx#invariant) and [warning](https://github.com/palmerhq/tsdx#warning) functions.
-
-## Module Formats
-
-CJS, ESModules, and UMD module formats are supported.
-
-The appropriate paths are configured in `package.json` and `dist/index.js` accordingly. Please report if any issues are found.
-
-## Deploying the Example Playground
-
-The Playground is just a simple [Parcel](https://parceljs.org) app, you can deploy it anywhere you would normally deploy that. Here are some guidelines for **manually** deploying with the Netlify CLI (`npm i -g netlify-cli`):
-
-```bash
-cd example # if not already in the example folder
-npm run build # builds to dist
-netlify deploy # deploy the dist folder
-```
-
-Alternatively, if you already have a git repo connected, you can set up continuous deployment with Netlify:
-
-```bash
-netlify init
-# build command: yarn build && cd example && yarn && yarn build
-# directory to deploy: example/dist
-# pick yes for netlify.toml
-```
-
-## Named Exports
-
-Per Palmer Group guidelines, [always use named exports.](https://github.com/palmerhq/typescript#exports) Code split inside your React app instead of your React library.
-
-## Including Styles
-
-There are many ways to ship styles, including with CSS-in-JS. TSDX has no opinion on this, configure how you like.
-
-For vanilla CSS, you can include it at the root directory and add it to the `files` section in your `package.json`, so that it can be imported separately by your users and run through their bundler's loader.
-
-## Publishing to NPM
-
-We recommend using [np](https://github.com/sindresorhus/np).
-
-## Usage with Lerna
-
-When creating a new package with TSDX within a project set up with Lerna, you might encounter a `Cannot resolve dependency` error when trying to run the `example` project. To fix that you will need to make changes to the `package.json` file _inside the `example` directory_.
-
-The problem is that due to the nature of how dependencies are installed in Lerna projects, the aliases in the example project's `package.json` might not point to the right place, as those dependencies might have been installed in the root of your Lerna project.
-
-Change the `alias` to point to where those packages are actually installed. This depends on the directory structure of your Lerna project, so the actual path might be different from the diff below.
-
-```diff
-   "alias": {
--    "react": "../node_modules/react",
--    "react-dom": "../node_modules/react-dom"
-+    "react": "../../../node_modules/react",
-+    "react-dom": "../../../node_modules/react-dom"
-   },
-```
-
-An alternative to fixing this problem would be to remove aliases altogether and define the dependencies referenced as aliases as dev dependencies instead. [However, that might cause other problems.](https://github.com/palmerhq/tsdx/issues/64)
