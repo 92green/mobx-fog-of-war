@@ -2,6 +2,7 @@
   "version": "0.0.1",
   "license": "MIT",
   "main": "dist/index.js",
+  "description": "A simple, lazy front-end request coordinator and cache for React and mobx. Load your data by simply trying to view it, and build up a picture of your server's data over time.",
   "typings": "dist/index.d.ts",
   "files": [
     "dist",
@@ -37,6 +38,13 @@
   },
   "name": "mobx-fog-of-war",
   "author": "Damien Clarke",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/92green/mobx-fog-of-war.git"
+  },
+  "bugs": {
+    "url": "https://github.com/92green/mobx-fog-of-war/issues"
+  },
   "module": "dist/mobx-fog-of-war.esm.js",
   "devDependencies": {
     "@babel/core": "^7.11.4",
