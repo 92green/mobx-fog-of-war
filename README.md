@@ -1,5 +1,7 @@
 # mobx-fog-of-war ☁️ ⚔️ 🤯
 
+[![npm](https://img.shields.io/npm/v/mobx-fog-of-war.svg)](https://www.npmjs.com/package/mobx-fog-of-war)
+
 ![aoe](https://user-images.githubusercontent.com/345320/91411571-ddf2da80-e88b-11ea-8de7-c0f3462991f4.gif)
 
 A simple, lazy front-end request coordinator and cache for [React](https://reactjs.org/) and [mobx](https://mobx.js.org/). Load your data by simply trying to view it, and build up a picture of your server's data over time.
