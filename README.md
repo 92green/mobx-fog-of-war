@@ -1,6 +1,6 @@
 # mobx-fog-of-war ☁️ ⚔️ 🤯
 
-[![npm](https://img.shields.io/npm/v/mobx-fog-of-war.svg)](https://www.npmjs.com/package/mobx-fog-of-war)
+[![npm](https://img.shields.io/npm/v/mobx-fog-of-war.svg)](https://www.npmjs.com/package/mobx-fog-of-war) ![Master build](https://github.com/92green/mobx-fog-of-war/workflows/CI/badge.svg?branch=master)
 
 ![aoe](https://user-images.githubusercontent.com/345320/91411571-ddf2da80-e88b-11ea-8de7-c0f3462991f4.gif)
 
