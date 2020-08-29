@@ -14,8 +14,9 @@
   "scripts": {
     "dev": "tsdx watch",
     "build": "tsdx build",
-    "test": "tsdx test --passWithNoTests --coverage",
+    "test": "tsdx test --passWithNoTests --coverage && yarn size",
     "lint": "yarn eslint src/**/*",
+    "size": "yarn build && yarn size-limit",
     "prepare": "tsdx build",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"
@@ -50,6 +51,7 @@
   "devDependencies": {
     "@babel/core": "^7.11.4",
     "@babel/plugin-transform-runtime": "^7.11.0",
+    "@size-limit/preset-small-lib": "^4.5.7",
     "@storybook/addon-actions": "^6.0.17",
     "@storybook/addon-docs": "^6.0.17",
     "@storybook/addon-info": "^5.3.19",
@@ -75,6 +77,7 @@
     "react-dom": "^16.13.1",
     "react-is": "^16.13.1",
     "rxjs": "^6.6.2",
+    "size-limit": "^4.5.7",
     "ts-loader": "^8.0.3",
     "tsdx": "^0.13.3",
     "tslib": "^2.0.1",
