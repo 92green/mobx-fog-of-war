@@ -15,7 +15,7 @@
     "dev": "tsdx watch",
     "build": "tsdx build",
     "test": "tsdx test --passWithNoTests --coverage",
-    "lint": "yarn eslint src/**/*",
+    "lint": "yarn eslint src/**/* --ext .js,.ts,.jsx,.tsx",
     "size": "yarn size-limit",
     "prepare": "tsdx build",
     "storybook": "start-storybook -p 6006",
