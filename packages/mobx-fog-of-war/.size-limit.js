@@ -16,21 +16,21 @@ module.exports = [
         name: 'asyncRequest',
         path: "dist/mobx-fog-of-war.esm.js",
         import: "{ asyncRequest }",
-        limit: "1 KB",
+        limit: "1.1 KB",
         ignore: ['react','mobx']
     },
     {
         name: 'provideStores',
         path: "dist/mobx-fog-of-war.esm.js",
         import: "{ provideStores }",
-        limit: "1 KB",
+        limit: "1.1 KB",
         ignore: ['react','mobx']
     },
     {
         name: 'rxBatch',
         path: "dist/mobx-fog-of-war.esm.js",
         import: "{ rxBatch }",
-        limit: "1.1 KB",
+        limit: "1.2 KB",
         ignore: ['react','mobx']
     },
     {
