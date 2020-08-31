@@ -33,13 +33,13 @@ import {Store, asyncRequest} from 'mobx-fog-of-war';
 
 const userStore = new Store<string,User,Error>({
     name: 'User Store',
-    staleTime: 10000,
+    staleTime: 10, // seconds
     request: asyncRequest(getUser)
 });
 
 const petStore = new Store<string,Pet,Error>({
     name: 'Pet Store',
-    staleTime: 10000,
+    staleTime: 10, // seconds
     request: asyncRequest(getPet)
 });
 

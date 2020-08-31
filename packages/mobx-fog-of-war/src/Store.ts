@@ -113,7 +113,7 @@ export class Store<Args,Data,Err> {
 
             if(staleTime === -1) return false;
             if(staleTime === 0) return true;
-            return new Date(Date.now()) > new Date(item.time.getTime() + staleTime);
+            return new Date(Date.now()) > new Date(item.time.getTime() + staleTime * 1000);
         };
 
         if(!item || (!item.loading && (!item.hasData || hasItemExpired(item)))) {
