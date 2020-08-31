@@ -37,6 +37,11 @@ export interface GetOptions {
     staleTime?: number;
 }
 
+export interface UseGetOptions {
+    staleTime?: number;
+    dependencies?: unknown[];
+}
+
 export class Store<Args,Data,Err> {
 
     name: string;
@@ -108,7 +113,7 @@ export class Store<Args,Data,Err> {
 
             if(staleTime === -1) return false;
             if(staleTime === 0) return true;
-            return new Date(Date.now()) > new Date(item.time.getTime() + staleTime);
+            return new Date(Date.now()) > new Date(item.time.getTime() + staleTime * 1000);
         };
 
         if(!item || (!item.loading && (!item.hasData || hasItemExpired(item)))) {
@@ -222,8 +227,9 @@ export class Store<Args,Data,Err> {
     // because React doesn't like side effects during a render
     // call it every render because this'll be deduped upstream anyway
 
-    useGet = (args: Args, options?: GetOptions): StoreItem<Data,Err>|undefined => {
-        useEffect(() => void this.get(args, options));
+    useGet = (args: Args, {staleTime, dependencies = []}: UseGetOptions = {}): StoreItem<Data,Err>|undefined => {
+        const key = argsToKey(args);
+        useEffect(() => void this.get(args, {staleTime}), [key, ...dependencies]);
         return this.read(args);
     };
 }

@@ -1,6 +1,6 @@
 # mobx-fog-of-war ☁️ ⚔️ 🤯
 
-[![npm](https://img.shields.io/npm/v/mobx-fog-of-war.svg)](https://www.npmjs.com/package/mobx-fog-of-war) ![Master build](https://github.com/92green/mobx-fog-of-war/workflows/CI/badge.svg?branch=master) ![Coverage 100%](https://img.shields.io/badge/coverage-100%25-green) ![Maturity](https://img.shields.io/badge/Maturity-Early%20days-yellow) ![Coolness Moderate](https://img.shields.io/badge/Coolness-Moderate-blue) 
+[![npm](https://img.shields.io/npm/v/mobx-fog-of-war.svg)](https://www.npmjs.com/package/mobx-fog-of-war) ![Master build](https://github.com/92green/mobx-fog-of-war/workflows/CI/badge.svg?branch=master) ![Coverage 100%](https://img.shields.io/badge/coverage-100%25-green) ![Size: <1.6KB](https://img.shields.io/badge/Size-<1.6KB-blue) ![Maturity: Early Days](https://img.shields.io/badge/Maturity-Early%20days-yellow) ![Coolness Moderate](https://img.shields.io/badge/Coolness-Moderate-blue) 
 
 ![aoe](https://user-images.githubusercontent.com/345320/91411571-ddf2da80-e88b-11ea-8de7-c0f3462991f4.gif)
 
@@ -17,6 +17,7 @@ If your _server_ is performing data joins (as many graphql APIs tend to do) then
 
 Install with `npm install react mobx mobx-react mobx-fog-of-war`
 
+- Small bundle: `Store` + `asyncRequest` < 1KB gzipped, entire library < 1.6KB gzipped
 - 100% [typescript typed](https://www.typescriptlang.org/)
 - 100% tested with [jest](https://jestjs.io/), [rx marble tests](https://rxjs-dev.firebaseapp.com/guide/testing/internal-marble-tests) and [enzyme](https://github.com/enzymejs/enzyme)
 - Efficient bundling with [rollup](https://rollupjs.org/guide/en/)
@@ -32,13 +33,13 @@ import {Store, asyncRequest} from 'mobx-fog-of-war';
 
 const userStore = new Store<string,User,Error>({
     name: 'User Store',
-    staleTime: 10000,
+    staleTime: 10, // seconds
     request: asyncRequest(getUser)
 });
 
 const petStore = new Store<string,Pet,Error>({
     name: 'Pet Store',
-    staleTime: 10000,
+    staleTime: 10, // seconds
     request: asyncRequest(getPet)
 });
 

@@ -1,4 +1,4 @@
-import {Store, StoreItem} from '../src/index';
+import {Store, StoreItem, argsToKey} from '../src/index';
 import {mocked} from 'ts-jest/utils';
 import React from 'react';
 
@@ -346,7 +346,7 @@ describe('Store', () => {
             setNow(0);
 
             const store = new Store<number,string,string>({
-                staleTime: 1000
+                staleTime: 1
             });
 
             store.request = jest.fn(store.request);
@@ -380,20 +380,20 @@ describe('Store', () => {
 
             store.request = jest.fn(store.request);
 
-            store.get(1, {staleTime: 1000});
+            store.get(1, {staleTime: 1});
             store.setData(1, 'one');
             expect(mocked(store.request)).toHaveBeenCalledTimes(1);
 
             setNow(300);
-            store.get(1, {staleTime: 1000});
+            store.get(1, {staleTime: 1});
             expect(mocked(store.request)).toHaveBeenCalledTimes(1);
 
             setNow(800);
-            store.get(1, {staleTime: 1000});
+            store.get(1, {staleTime: 1});
             expect(mocked(store.request)).toHaveBeenCalledTimes(1);
 
             setNow(1200);
-            store.get(1, {staleTime: 1000});
+            store.get(1, {staleTime: 1});
             expect(mocked(store.request)).toHaveBeenCalledTimes(2);
 
             expect(mocked(store.request)).toHaveBeenCalledTimes(2);
@@ -412,22 +412,26 @@ describe('Store', () => {
             store.get = jest.fn();
 
             store.useGet(1);
+            const key1 = argsToKey(1);
 
             expect(mocked(React.useEffect)).toHaveBeenCalledTimes(1);
+            expect(mocked(React.useEffect).mock.calls[0][1]).toEqual([key1]);
             mocked(React.useEffect).mock.calls[0][0]();
 
             expect(mocked(store.get)).toHaveBeenCalledTimes(1);
             expect(mocked(store.get).mock.calls[0][0]).toBe(1);
-            expect(mocked(store.get).mock.calls[0][1]).toBe(undefined);
+            expect(mocked(store.get).mock.calls[0][1]).toEqual({});
 
-            store.useGet(2, {staleTime: 1000});
+            store.useGet(2, {staleTime: 1, dependencies: ['foo']});
+            const key2 = argsToKey(2);
 
             expect(mocked(React.useEffect)).toHaveBeenCalledTimes(2);
+            expect(mocked(React.useEffect).mock.calls[1][1]).toEqual([key2, 'foo']);
             mocked(React.useEffect).mock.calls[1][0]();
 
             expect(mocked(store.get)).toHaveBeenCalledTimes(2);
             expect(mocked(store.get).mock.calls[1][0]).toBe(2);
-            expect(mocked(store.get).mock.calls[1][1]).toEqual({staleTime: 1000});
+            expect(mocked(store.get).mock.calls[1][1]).toEqual({staleTime: 1});
         });
     });
 });
