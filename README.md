@@ -25,6 +25,8 @@ Install with `npm install react mobx mobx-react mobx-fog-of-war`
 - Demo site powered by [nextjs](https://nextjs.org/)
 - Monorepo managed with [lerna](https://github.com/lerna/lerna)
 
+## Example Usage
+
 ```js
 import {Store, asyncRequest} from 'mobx-fog-of-war';
 
@@ -49,7 +51,6 @@ const [StoreProvider, useStore] = provideStores({userStore, petStore});
 
 import React from 'react';
 import {observer} from 'mobx-react';
-import 'mobx-react/batchingForReactDom';
 
 const Main = (props) => {
     return <StoreProvider>
@@ -57,14 +58,14 @@ const Main = (props) => {
     </StoreProvider>;
 };
 
-const Loader = (props) => {
+const Loader = observer(props => {
     let {storeItem, children} = props;
     if(!storeItem) return null;
     if(storeItem.loading) return <div>Loading</div>;
     if(storeItem.hasError) return <div>Error: {storeItem.error.message}</div>;
     if(!storeItem.hasData) return <div>Not found</div>;
     return children();
-};
+});
 
 const UserView = observer(props => {
     const {userStore} = useStore();
@@ -72,7 +73,7 @@ const UserView = observer(props => {
     const user = userFromStore.data;
 
     return <Loader storeItem={userFromStore}>
-        {() => <div>
+        {() => user && <div>
             Name: {user.name}
             Pets: {user.petIds.map(petId => <PetView key={petId} petId={petId} />)}
         </div>}
@@ -81,11 +82,11 @@ const UserView = observer(props => {
 
 const PetView = observer(props => {
     const {petStore} = useStore();
-    const petFromStore = userStore.useGet(props.petId);
+    const petFromStore = petStore.useGet(props.petId);
     const pet = petFromStore.data;
 
     return <Loader storeItem={petFromStore}>
-        {() => <div>
+        {() => pet && <div>
             Pet name: {pet.name}
         </div>}
     </Loader>;
