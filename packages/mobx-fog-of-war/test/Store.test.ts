@@ -1,6 +1,7 @@
 import {Store, StoreItem, argsToKey} from '../src/index';
 import {mocked} from 'ts-jest/utils';
 import React from 'react';
+import {toJS, autorun} from 'mobx';
 
 const setNow = (ms: number): number => {
     ms = Math.floor(ms);
@@ -275,7 +276,7 @@ describe('Store', () => {
             const store = new Store<number,string,string>();
             store.request = jest.fn(store.request);
 
-            const item = store.get(1) as StoreItem<string,string>;
+            const item = store.get(1);
 
             expect(item instanceof StoreItem).toBe(true);
             expect(item.loading).toBe(true);
@@ -399,6 +400,23 @@ describe('Store', () => {
             expect(mocked(store.request)).toHaveBeenCalledTimes(2);
             expect(mocked(store.request).mock.calls[0][0]).toBe(1);
             expect(store.nextRequest && store.nextRequest.requestId).toBe(2);
+        });
+
+        it('request() should always request', () => {
+            const store = new Store<number,string,string>();
+
+            const changes = jest.fn();
+
+            autorun(() => {
+                changes(toJS(store.nextRequest));
+            });
+
+            const item = store.request(1);
+            store.request(1);
+            store.request(1);
+
+            expect(mocked(changes)).toHaveBeenCalledTimes(4); // 3 calls + 1 initial value
+            expect(item.loading).toBe(true);
         });
     });
 
