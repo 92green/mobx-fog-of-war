@@ -4,6 +4,7 @@
 var path = require('path');
 
 module.exports = {
+    basePath: '/mobx-fog-of-war',
     webpack: function (config) {
         config.resolve.alias['react'] = path.resolve('./node_modules/react');
         config.resolve.alias['react-dom'] = path.resolve('./node_modules/react-dom');
