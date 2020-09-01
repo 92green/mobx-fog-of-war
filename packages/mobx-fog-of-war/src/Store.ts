@@ -1,6 +1,7 @@
-import {observable, action} from 'mobx';
+import {observable, action, autorun} from 'mobx';
 import {useEffect} from 'react';
 import {argsToKey} from './argsToKey';
+
 
 export class StoreItem<D,E> {
     @observable loading = false;
@@ -9,6 +10,25 @@ export class StoreItem<D,E> {
     @observable hasError = false;
     @observable error: E|undefined;
     @observable time = new Date(Date.now());
+
+    toPromise = (): Promise<StoreItem<D,E>> => {
+        if(!this.loading) return Promise.resolve(this);
+
+        let resolver: (() => void)|undefined;
+        const promise = new Promise(resolve => {
+            resolver = () => void resolve(this);
+        });
+
+        autorun(reaction => {
+            if(!this.loading) {
+                /* istanbul ignore next */
+                resolver?.();
+                reaction.dispose();
+            }
+        });
+
+        return promise as Promise<StoreItem<D,E>>;
+    };
 }
 
 export interface NextRequest<Args> {

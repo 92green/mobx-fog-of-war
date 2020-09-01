@@ -420,6 +420,53 @@ describe('Store', () => {
         });
     });
 
+    describe('StoreItem.toPromise()', () => {
+
+        it('should turn the observable item returned from a new request() into a pending promise', async () => {
+            const store = new Store<number,string,string>();
+
+            setTimeout(() => {
+                store.setData(1, 'hello');
+            }, 1000);
+
+            const result = await store.request(1).toPromise();
+
+            expect(result.loading).toBe(false);
+            expect(result.data).toBe('hello');
+        });
+
+        it('should turn the observable item returned from a new request() into a pending promise and resolve on error', async () => {
+            const store = new Store<number,string,string>();
+
+            setTimeout(() => {
+                store.setError(1, 'error');
+            }, 1000);
+
+            const result = await store.request(1).toPromise();
+
+            expect(result.loading).toBe(false);
+            expect(result.error).toBe('error');
+        });
+
+        it('should turn the observable item returned from an existing get() into a resolved promise', async () => {
+            const store = new Store<number,string,string>();
+
+            store.setData(1, 'hello');
+            const item = store.read(1) as StoreItem<string,string>;
+            const result = await item.toPromise();
+            expect(result).toBe(store.read(1));
+        });
+
+        it('should turn the observable item returned from an existing get() into a resolved promise even on error', async () => {
+            const store = new Store<number,string,string>();
+
+            store.setError(1, 'error');
+            const item = store.read(1) as StoreItem<string,string>;
+            const result = await item.toPromise();
+            expect(result).toBe(store.read(1));
+        });
+    });
+
     describe('useGet', () => {
 
         // eslint-disable-next-line @typescript-eslint/no-empty-function
