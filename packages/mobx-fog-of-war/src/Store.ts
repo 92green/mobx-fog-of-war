@@ -1,6 +1,7 @@
-import {observable, action} from 'mobx';
+import {observable, action, autorun} from 'mobx';
 import {useEffect} from 'react';
 import {argsToKey} from './argsToKey';
+
 
 export class StoreItem<D,E> {
     @observable loading = false;
@@ -9,6 +10,25 @@ export class StoreItem<D,E> {
     @observable hasError = false;
     @observable error: E|undefined;
     @observable time = new Date(Date.now());
+
+    toPromise = (): Promise<StoreItem<D,E>> => {
+        if(!this.loading) return Promise.resolve(this);
+
+        let resolver: (() => void)|undefined;
+        const promise = new Promise(resolve => {
+            resolver = () => void resolve(this);
+        });
+
+        autorun(reaction => {
+            if(!this.loading) {
+                /* istanbul ignore next */
+                resolver?.();
+                reaction.dispose();
+            }
+        });
+
+        return promise as Promise<StoreItem<D,E>>;
+    };
 }
 
 export interface NextRequest<Args> {
@@ -101,7 +121,7 @@ export class Store<Args,Data,Err> {
     // gets an item, either from cache or by requesting it if required
     // returns the mobx observable for the item
 
-    get = (args: Args, options: GetOptions = {}): StoreItem<Data,Err>|undefined => {
+    get = (args: Args, options: GetOptions = {}): StoreItem<Data,Err> => {
         const key = argsToKey(args);
 
         const item = this.cache.get(key);
@@ -117,10 +137,10 @@ export class Store<Args,Data,Err> {
         };
 
         if(!item || (!item.loading && (!item.hasData || hasItemExpired(item)))) {
-            this.request(args);
+            return this.request(args);
         }
 
-        return this.read(args);
+        return this.read(args) as StoreItem<Data,Err>;
     }
 
     //
@@ -135,7 +155,7 @@ export class Store<Args,Data,Err> {
     // make a request for data
 
     @action
-    request = (args: Args): void => {
+    request = (args: Args): StoreItem<Data,Err> => {
         const key = argsToKey(args);
 
         this.log(`${this.name}: requesting ${key}:`, args);
@@ -149,6 +169,8 @@ export class Store<Args,Data,Err> {
             args,
             requestId: this.requestId
         };
+
+        return this.read(args) as StoreItem<Data,Err>;
     };
 
     // receive() action

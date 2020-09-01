@@ -1,6 +1,7 @@
 import {Store, StoreItem, argsToKey} from '../src/index';
 import {mocked} from 'ts-jest/utils';
 import React from 'react';
+import {toJS, autorun} from 'mobx';
 
 const setNow = (ms: number): number => {
     ms = Math.floor(ms);
@@ -275,7 +276,7 @@ describe('Store', () => {
             const store = new Store<number,string,string>();
             store.request = jest.fn(store.request);
 
-            const item = store.get(1) as StoreItem<string,string>;
+            const item = store.get(1);
 
             expect(item instanceof StoreItem).toBe(true);
             expect(item.loading).toBe(true);
@@ -399,6 +400,70 @@ describe('Store', () => {
             expect(mocked(store.request)).toHaveBeenCalledTimes(2);
             expect(mocked(store.request).mock.calls[0][0]).toBe(1);
             expect(store.nextRequest && store.nextRequest.requestId).toBe(2);
+        });
+
+        it('request() should always request', () => {
+            const store = new Store<number,string,string>();
+
+            const changes = jest.fn();
+
+            autorun(() => {
+                changes(toJS(store.nextRequest));
+            });
+
+            const item = store.request(1);
+            store.request(1);
+            store.request(1);
+
+            expect(mocked(changes)).toHaveBeenCalledTimes(4); // 3 calls + 1 initial value
+            expect(item.loading).toBe(true);
+        });
+    });
+
+    describe('StoreItem.toPromise()', () => {
+
+        it('should turn the observable item returned from a new request() into a pending promise', async () => {
+            const store = new Store<number,string,string>();
+
+            setTimeout(() => {
+                store.setData(1, 'hello');
+            }, 1000);
+
+            const result = await store.request(1).toPromise();
+
+            expect(result.loading).toBe(false);
+            expect(result.data).toBe('hello');
+        });
+
+        it('should turn the observable item returned from a new request() into a pending promise and resolve on error', async () => {
+            const store = new Store<number,string,string>();
+
+            setTimeout(() => {
+                store.setError(1, 'error');
+            }, 1000);
+
+            const result = await store.request(1).toPromise();
+
+            expect(result.loading).toBe(false);
+            expect(result.error).toBe('error');
+        });
+
+        it('should turn the observable item returned from an existing get() into a resolved promise', async () => {
+            const store = new Store<number,string,string>();
+
+            store.setData(1, 'hello');
+            const item = store.read(1) as StoreItem<string,string>;
+            const result = await item.toPromise();
+            expect(result).toBe(store.read(1));
+        });
+
+        it('should turn the observable item returned from an existing get() into a resolved promise even on error', async () => {
+            const store = new Store<number,string,string>();
+
+            store.setError(1, 'error');
+            const item = store.read(1) as StoreItem<string,string>;
+            const result = await item.toPromise();
+            expect(result).toBe(store.read(1));
         });
     });
 
