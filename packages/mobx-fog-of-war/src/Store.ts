@@ -2,11 +2,10 @@ import {observable, action, autorun} from 'mobx';
 import {useEffect} from 'react';
 import {argsToKey} from './argsToKey';
 
-
 export class StoreItem<D,E> {
     @observable loading = false;
-    @observable hasData = false;
     @observable data: D|undefined;
+    @observable hasData = false;
     @observable hasError = false;
     @observable error: E|undefined;
     @observable time = new Date(Date.now());
@@ -62,7 +61,10 @@ export interface UseGetOptions {
     dependencies?: unknown[];
 }
 
-export class Store<A,D,E> {
+// eslint-disable-next-line @typescript-eslint/ban-types
+export type NotUndefined = {} | null;
+
+export class Store<A,D extends NotUndefined,E extends NotUndefined> {
 
     name: string;
     staleTime: number;
@@ -206,12 +208,16 @@ export class Store<A,D,E> {
 
     @action
     setData = (args: A, data: D): void => {
+        if(data === undefined) {
+            throw new Error('Data cannot be undefined');
+        }
+
         const key = argsToKey(args);
         this.log(`${this.name}: receiving data for ${key}:`, data);
 
         const item = this._getOrCreate(key);
         item.loading = false;
-        item.hasData = true;
+        item.hasData = data !== undefined;
         item.hasError = false;
         item.error = undefined;
         item.data = data;
@@ -223,12 +229,16 @@ export class Store<A,D,E> {
 
     @action
     setError = (args: A, error: E): void => {
+        if(error === undefined) {
+            throw new Error('Error cannot be undefined');
+        }
+
         const key = argsToKey(args);
         this.log(`${this.name}: receiving error for ${key}:`, error);
 
         const item = this._getOrCreate(key);
         item.loading = false;
-        item.hasError = true;
+        item.hasError = error !== undefined;
         item.error = error;
     };
 

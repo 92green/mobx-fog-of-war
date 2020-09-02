@@ -96,6 +96,14 @@ describe('Store', () => {
 
             expect(item.data).toBe('deep');
         });
+
+        it('should not accept undefined', () => {
+            const store = new Store<unknown,string,string>();
+
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-expect-error
+            expect(() => store.setData(1, undefined)).toThrow('Data cannot be undefined');
+        });
     });
 
     describe('setError', () => {
@@ -113,6 +121,14 @@ describe('Store', () => {
             expect(item.hasError).toBe(true);
             expect(item.error).toBe('error');
             expect(item.time.getTime()).toBe(now);
+        });
+
+        it('should not accept undefined', () => {
+            const store = new Store<unknown,string,string>();
+
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-expect-error
+            expect(() => store.setError(1, undefined)).toThrow('Error cannot be undefined');
         });
     });
 
