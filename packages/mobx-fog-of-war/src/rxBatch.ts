@@ -7,16 +7,16 @@ import type {Observable, OperatorFunction} from 'rxjs';
 
 import {bufferCount, bufferTime, catchError, concatMap, mergeMap, map} from 'rxjs/operators';
 
-interface Options<Args,Data,Err> {
-    request: (argsArray: Args[]) => Observable<Array<Data>>|Promise<Array<Data>>;
+interface Options<A,D,E> {
+    request: (argsArray: A[]) => Observable<Array<D>>|Promise<Array<D>>;
     bufferTime: number;
     batch: number;
-    getArgs: GetArgs<Args,Data>;
-    requestError: (error: unknown, argsArray: Args[]) => Err;
-    missingError: MissingError<Args,Err>;
+    getArgs: GetArgs<A,D>;
+    requestError: (error: unknown, argsArray: A[]) => E;
+    missingError: MissingError<A,E>;
 }
 
-export const rxBatch = <Args,Data,Err>(options: Options<Args,Data,Err>): OperatorFunction<Args, Receive<Args,Data,Err>> => {
+export const rxBatch = <A,D,E>(options: Options<A,D,E>): OperatorFunction<A, Receive<A,D,E>> => {
     const {
         request,
         bufferTime: time,
@@ -28,17 +28,17 @@ export const rxBatch = <Args,Data,Err>(options: Options<Args,Data,Err>): Operato
 
     return pipe(
         bufferTime(time),
-        mergeMap((argsArray: Args[]) => from(argsArray).pipe(
+        mergeMap((argsArray: A[]) => from(argsArray).pipe(
             bufferCount(batch)
         )),
-        concatMap((argsArray: Args[]) => of(argsArray).pipe(
+        concatMap((argsArray: A[]) => of(argsArray).pipe(
             mergeMap(request),
-            map((items: Data[]) => sortByArgsArray(argsArray, items, getArgs, missingError)),
+            map((items: D[]) => sortByArgsArray(argsArray, items, getArgs, missingError)),
             catchError((err: unknown) => {
                 const error = requestError(err, argsArray);
                 return of(argsArray.map(args => ({args, error})));
             })
         )),
-        mergeMap((items: Array<Receive<Args,Data,Err>>) => from(items))
+        mergeMap((items: Array<Receive<A,D,E>>) => from(items))
     );
 };

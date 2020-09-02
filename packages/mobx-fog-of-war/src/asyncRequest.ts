@@ -1,9 +1,9 @@
 import {autorun, toJS, action} from 'mobx';
 import type {Store} from './Store';
 
-type Requester<Args,Data> = (args: Args) => Promise<Data>;
+type Requester<A,D> = (args: A) => Promise<D>;
 
-export const asyncRequest = <Args,Data,Err>(requester: Requester<Args,Data>) => (store: Store<Args,Data,Err>): void => {
+export const asyncRequest = <A,D,E>(requester: Requester<A,D>) => (store: Store<A,D,E>): void => {
     autorun(() => {
         const nextRequestPlain = toJS(store.nextRequest);
         if(!nextRequestPlain) return;

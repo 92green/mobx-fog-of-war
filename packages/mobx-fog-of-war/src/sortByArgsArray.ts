@@ -1,23 +1,23 @@
 import {argsToKey} from './argsToKey';
 import type {Receive} from './Store';
 
-export type GetArgs<Args,Data> = (data: Data) => Args;
-export type MissingError<Args,Err> = (args: Args) => Err;
+export type GetArgs<A,D> = (data: D) => A;
+export type MissingError<A,E> = (args: A) => E;
 
-export const sortByArgsArray = <Args,Data,Err>(
-    argsArray: Args[],
-    dataArray: Data[],
-    getArgs: GetArgs<Args,Data>,
-    missingError: MissingError<Args,Err>
-): Receive<Args,Data,Err>[] => {
+export const sortByArgsArray = <A,D,E>(
+    argsArray: A[],
+    dataArray: D[],
+    getArgs: GetArgs<A,D>,
+    missingError: MissingError<A,E>
+): Receive<A,D,E>[] => {
 
-    const dataByKey = new Map<string,Data>();
+    const dataByKey = new Map<string,D>();
 
-    dataArray.forEach((data: Data) => {
+    dataArray.forEach((data: D) => {
         dataByKey.set(argsToKey(getArgs(data)), data);
     });
 
-    return argsArray.map((args: Args): Receive<Args,Data,Err> => {
+    return argsArray.map((args: A): Receive<A,D,E> => {
         const key = argsToKey(args);
         if(dataByKey.has(key)) {
             return {

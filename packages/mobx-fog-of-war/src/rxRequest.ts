@@ -64,9 +64,9 @@ function toStream<T>(
 // rxRequest
 //
 
-export const rxRequest = <Args,Data,Err>(operator: OperatorFunction<Args, Receive<Args,Data,Err>>) => {
-    return (store: Store<Args,Data,Err>): void => {
-        from(toStream((): NextRequest<Args> => toJS(store.nextRequest) as NextRequest<Args>))
+export const rxRequest = <A,D,E>(operator: OperatorFunction<A, Receive<A,D,E>>) => {
+    return (store: Store<A,D,E>): void => {
+        from(toStream((): NextRequest<A> => toJS(store.nextRequest) as NextRequest<A>))
             .pipe(
                 map(item => item.args),
                 operator

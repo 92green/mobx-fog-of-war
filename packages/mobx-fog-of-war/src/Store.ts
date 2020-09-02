@@ -2,11 +2,10 @@ import {observable, action, autorun} from 'mobx';
 import {useEffect} from 'react';
 import {argsToKey} from './argsToKey';
 
-
 export class StoreItem<D,E> {
     @observable loading = false;
-    @observable hasData = false;
     @observable data: D|undefined;
+    @observable hasData = false;
     @observable hasError = false;
     @observable error: E|undefined;
     @observable time = new Date(Date.now());
@@ -31,24 +30,24 @@ export class StoreItem<D,E> {
     };
 }
 
-export interface NextRequest<Args> {
-    args: Args;
+export interface NextRequest<A> {
+    args: A;
     requestId: number;
 }
 
-export type Receive<Args,Data,Err> = {
-    args: Args;
-    data: Data;
+export type Receive<A,D,E> = {
+    args: A;
+    data: D;
 } | {
-    args: Args;
-    error: Err;
+    args: A;
+    error: E;
 };
 
 export type Logger = (...args: unknown[]) => unknown;
 
-export interface StoreOptions<Args,Data,Err> {
+export interface StoreOptions<A,D,E> {
     name?: string;
-    request?: (store: Store<Args,Data,Err>) => void;
+    request?: (store: Store<A,D,E>) => void;
     staleTime?: number;
     log?: Logger;
 }
@@ -62,20 +61,23 @@ export interface UseGetOptions {
     dependencies?: unknown[];
 }
 
-export class Store<Args,Data,Err> {
+// eslint-disable-next-line @typescript-eslint/ban-types
+export type NotUndefined = {} | null;
+
+export class Store<A,D extends NotUndefined,E extends NotUndefined> {
 
     name: string;
     staleTime: number;
     log: Logger;
 
-    @observable cache: Map<string, StoreItem<Data,Err>> = new Map();
+    @observable cache: Map<string, StoreItem<D,E>> = new Map();
 
     // nextRequest will change each time there is a new request
     // chain off it to go fetch some data
-    @observable nextRequest: NextRequest<Args>|undefined;
+    @observable nextRequest: NextRequest<A>|undefined;
     requestId = 0;
 
-    constructor(options: StoreOptions<Args,Data,Err> = {}) {
+    constructor(options: StoreOptions<A,D,E> = {}) {
         const {
             name = 'unnamed',
             request,
@@ -93,10 +95,11 @@ export class Store<Args,Data,Err> {
         }
     }
 
-    _getOrCreate = (key: string): StoreItem<Data,Err> => {
+    _getOrCreate = (key: string): StoreItem<D,E> => {
         let item = this.cache.get(key);
         if(!item) {
             item = new StoreItem();
+            item.time = new Date(Date.now());
             this.cache.set(key, item);
         }
         return item;
@@ -111,9 +114,10 @@ export class Store<Args,Data,Err> {
     // so all changes to the item can be observed,
     // or turned into an rxjs observable to be observed that way
 
-    read = (args: Args): StoreItem<Data,Err>|undefined => {
+    @action
+    read = (args: A): StoreItem<D,E> => {
         const key = argsToKey(args);
-        return this.cache.get(key);
+        return this._getOrCreate(key);
     }
 
     // get()
@@ -121,12 +125,12 @@ export class Store<Args,Data,Err> {
     // gets an item, either from cache or by requesting it if required
     // returns the mobx observable for the item
 
-    get = (args: Args, options: GetOptions = {}): StoreItem<Data,Err> => {
+    get = (args: A, options: GetOptions = {}): StoreItem<D,E> => {
         const key = argsToKey(args);
 
         const item = this.cache.get(key);
 
-        const hasItemExpired = (item: StoreItem<Data,Err>): boolean => {
+        const hasItemExpired = (item: StoreItem<D,E>): boolean => {
             const staleTime: number = typeof options.staleTime === 'number'
                 ? options.staleTime
                 : this.staleTime;
@@ -140,7 +144,7 @@ export class Store<Args,Data,Err> {
             return this.request(args);
         }
 
-        return this.read(args) as StoreItem<Data,Err>;
+        return this.read(args);
     }
 
     //
@@ -155,7 +159,7 @@ export class Store<Args,Data,Err> {
     // make a request for data
 
     @action
-    request = (args: Args): StoreItem<Data,Err> => {
+    request = (args: A): StoreItem<D,E> => {
         const key = argsToKey(args);
 
         this.log(`${this.name}: requesting ${key}:`, args);
@@ -170,7 +174,7 @@ export class Store<Args,Data,Err> {
             requestId: this.requestId
         };
 
-        return this.read(args) as StoreItem<Data,Err>;
+        return this.read(args);
     };
 
     // receive() action
@@ -179,7 +183,7 @@ export class Store<Args,Data,Err> {
     // basd on if it is data or error
 
     @action
-    receive = (receive: Receive<Args,Data,Err>): void => {
+    receive = (receive: Receive<A,D,E>): void => {
         if('error' in receive) {
             this.setError(receive.args, receive.error);
         } else {
@@ -192,11 +196,10 @@ export class Store<Args,Data,Err> {
     // for a given key, set an item's loading state
 
     @action
-    setLoading = (args: Args, loading: boolean): void => {
+    setLoading = (args: A, loading: boolean): void => {
         const key = argsToKey(args);
         const item = this._getOrCreate(key);
         item.loading = loading;
-        item.time = new Date(Date.now());
     };
 
     // setData() action
@@ -204,17 +207,20 @@ export class Store<Args,Data,Err> {
     // for a given key, set an item's data in cache
 
     @action
-    setData = (args: Args, data: Data): void => {
+    setData = (args: A, data: D): void => {
+        if(data === undefined) {
+            throw new Error('Data cannot be undefined');
+        }
+
         const key = argsToKey(args);
         this.log(`${this.name}: receiving data for ${key}:`, data);
 
         const item = this._getOrCreate(key);
         item.loading = false;
-        item.hasData = true;
+        item.hasData = data !== undefined;
         item.hasError = false;
         item.error = undefined;
         item.data = data;
-        item.time = new Date(Date.now());
     };
 
     // setData() action
@@ -222,15 +228,18 @@ export class Store<Args,Data,Err> {
     // for a given key, set an item's data in cache
 
     @action
-    setError = (args: Args, error: Err): void => {
+    setError = (args: A, error: E): void => {
+        if(error === undefined) {
+            throw new Error('Error cannot be undefined');
+        }
+
         const key = argsToKey(args);
         this.log(`${this.name}: receiving error for ${key}:`, error);
 
         const item = this._getOrCreate(key);
         item.loading = false;
-        item.hasError = true;
+        item.hasError = error !== undefined;
         item.error = error;
-        item.time = new Date(Date.now());
     };
 
     // remove() action
@@ -238,7 +247,7 @@ export class Store<Args,Data,Err> {
     // for a given key, remove the cached item
 
     @action
-    remove = (args: Args): void => {
+    remove = (args: A): void => {
         const key = argsToKey(args);
         this.cache.delete(key);
     };
@@ -249,7 +258,7 @@ export class Store<Args,Data,Err> {
     // because React doesn't like side effects during a render
     // call it every render because this'll be deduped upstream anyway
 
-    useGet = (args: Args, {staleTime, dependencies = []}: UseGetOptions = {}): StoreItem<Data,Err>|undefined => {
+    useGet = (args: A, {staleTime, dependencies = []}: UseGetOptions = {}): StoreItem<D,E>|undefined => {
         const key = argsToKey(args);
         useEffect(() => void this.get(args, {staleTime}), [key, ...dependencies]);
         return this.read(args);
