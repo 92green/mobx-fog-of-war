@@ -1,4 +1,4 @@
-import {Store, StoreItem, argsToKey} from '../src/index';
+import {Store, argsToKey} from '../src/index';
 import {mocked} from 'ts-jest/utils';
 import React from 'react';
 import {toJS, autorun} from 'mobx';
@@ -56,13 +56,12 @@ describe('Store', () => {
 
             const item = store.read(1);
 
-            expect(item).toBe(undefined);
+            expect(item.loading).toBe(false);
 
             store.setLoading(1, true);
 
-            const item2 = store.read(1) as StoreItem<string,string>;
+            const item2 = store.read(1);
 
-            expect(item2 instanceof StoreItem).toBe(true);
             expect(item2.loading).toBe(true);
             expect(item2.hasData).toBe(false); // should not have changed
             expect(item2.data).toBe(undefined); // should not have changed
@@ -79,9 +78,8 @@ describe('Store', () => {
 
             store.setData(1, 'one');
 
-            const item = store.read(1) as StoreItem<string,string>;
+            const item = store.read(1);
 
-            expect(item instanceof StoreItem).toBe(true);
             expect(item.loading).toBe(false);
             expect(item.hasData).toBe(true);
             expect(item.data).toBe('one');
@@ -94,9 +92,8 @@ describe('Store', () => {
             const store = new Store<unknown,string,string>();
 
             store.setData({foo:[1,2,3]}, 'deep');
-            const item = store.read({foo:[1,2,3]}) as StoreItem<string,string>;
+            const item = store.read({foo:[1,2,3]});
 
-            expect(item instanceof StoreItem).toBe(true);
             expect(item.data).toBe('deep');
         });
     });
@@ -108,9 +105,8 @@ describe('Store', () => {
 
             store.setError(1, 'error');
 
-            const item = store.read(1) as StoreItem<string,string>;
+            const item = store.read(1);
 
-            expect(item instanceof StoreItem).toBe(true);
             expect(item.loading).toBe(false);
             expect(item.hasData).toBe(false); // should not have changed
             expect(item.data).toBe(undefined); // should not have changed
@@ -128,9 +124,8 @@ describe('Store', () => {
             store.setLoading(1, true);
             store.setData(1, 'one');
 
-            const item = store.read(1) as StoreItem<string,string>;
+            const item = store.read(1);
 
-            expect(item instanceof StoreItem).toBe(true);
             expect(item.loading).toBe(false);
             expect(item.hasData).toBe(true);
             expect(item.data).toBe('one');
@@ -146,9 +141,8 @@ describe('Store', () => {
             store.setLoading(1, true);
             store.setError(1, 'error');
 
-            const item = store.read(1) as StoreItem<string,string>;
+            const item = store.read(1);
 
-            expect(item instanceof StoreItem).toBe(true);
             expect(item.loading).toBe(false);
             expect(item.hasData).toBe(false); // should not have changed
             expect(item.data).toBe(undefined); // should not have changed
@@ -164,9 +158,8 @@ describe('Store', () => {
             store.setData(1, 'one');
             store.setLoading(1, true);
 
-            const item = store.read(1) as StoreItem<string,string>;
+            const item = store.read(1);
 
-            expect(item instanceof StoreItem).toBe(true);
             expect(item.loading).toBe(true);
             expect(item.hasData).toBe(true); // should not have changed since setData()
             expect(item.data).toBe('one'); // should not have changed since setData()
@@ -182,9 +175,8 @@ describe('Store', () => {
             store.setError(1, 'error');
             store.setLoading(1, true);
 
-            const item = store.read(1) as StoreItem<string,string>;
+            const item = store.read(1);
 
-            expect(item instanceof StoreItem).toBe(true);
             expect(item.loading).toBe(true);
             expect(item.hasData).toBe(false); // should not have changed
             expect(item.data).toBe(undefined); // should not have changed
@@ -200,9 +192,8 @@ describe('Store', () => {
             store.setError(1, 'error');
             store.setData(1, 'one');
 
-            const item = store.read(1) as StoreItem<string,string>;
+            const item = store.read(1);
 
-            expect(item instanceof StoreItem).toBe(true);
             expect(item.loading).toBe(false);
             expect(item.hasData).toBe(true);
             expect(item.data).toBe('one');
@@ -218,9 +209,8 @@ describe('Store', () => {
             store.setData(1, 'one');
             store.setError(1, 'error');
 
-            const item = store.read(1) as StoreItem<string,string>;
+            const item = store.read(1);
 
-            expect(item instanceof StoreItem).toBe(true);
             expect(item.loading).toBe(false);
             expect(item.hasData).toBe(true); // should not have changed since setData()
             expect(item.data).toBe('one'); // should not have changed since setData()
@@ -264,10 +254,10 @@ describe('Store', () => {
         it('should remove data from cache', () => {
             const store = new Store<number,string,string>();
 
-            const item = store.read(1);
             store.setData(1, 'one');
             store.remove(1);
-            expect(item).toBe(undefined);
+            const item = store.read(1);
+            expect(item.data).toBe(undefined);
         });
     });
 
@@ -278,7 +268,6 @@ describe('Store', () => {
 
             const item = store.get(1);
 
-            expect(item instanceof StoreItem).toBe(true);
             expect(item.loading).toBe(true);
 
             expect(mocked(store.request)).toHaveBeenCalledTimes(1);
@@ -452,7 +441,7 @@ describe('Store', () => {
             const store = new Store<number,string,string>();
 
             store.setData(1, 'hello');
-            const item = store.read(1) as StoreItem<string,string>;
+            const item = store.read(1);
             const result = await item.toPromise();
             expect(result).toBe(store.read(1));
         });
@@ -461,7 +450,7 @@ describe('Store', () => {
             const store = new Store<number,string,string>();
 
             store.setError(1, 'error');
-            const item = store.read(1) as StoreItem<string,string>;
+            const item = store.read(1);
             const result = await item.toPromise();
             expect(result).toBe(store.read(1));
         });

@@ -40,7 +40,7 @@ describe('asyncRequest', () => {
         await promise.current;
 
         expect(mocked(changes)).toHaveBeenCalledTimes(3);
-        expect(mocked(changes).mock.calls[0][0]).toBe(undefined);
+        expect(mocked(changes).mock.calls[0][0].loading).toBe(false);
         expect(mocked(changes).mock.calls[1][0].loading).toBe(true);
         expect(mocked(changes).mock.calls[2][0].data).toEqual({
             id: 'a',
@@ -78,7 +78,7 @@ describe('asyncRequest', () => {
         } catch(e) {}
 
         expect(mocked(changes)).toHaveBeenCalledTimes(3);
-        expect(mocked(changes).mock.calls[0][0]).toBe(undefined);
+        expect(mocked(changes).mock.calls[0][0].loading).toBe(false);
         expect(mocked(changes).mock.calls[1][0].loading).toBe(true);
         expect(mocked(changes).mock.calls[2][0].error).toBe('ARGH!');
     });

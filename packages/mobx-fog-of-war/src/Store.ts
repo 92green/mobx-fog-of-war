@@ -97,6 +97,7 @@ export class Store<Args,Data,Err> {
         let item = this.cache.get(key);
         if(!item) {
             item = new StoreItem();
+            item.time = new Date(Date.now());
             this.cache.set(key, item);
         }
         return item;
@@ -111,9 +112,10 @@ export class Store<Args,Data,Err> {
     // so all changes to the item can be observed,
     // or turned into an rxjs observable to be observed that way
 
-    read = (args: Args): StoreItem<Data,Err>|undefined => {
+    @action
+    read = (args: Args): StoreItem<Data,Err> => {
         const key = argsToKey(args);
-        return this.cache.get(key);
+        return this._getOrCreate(key);
     }
 
     // get()
@@ -140,7 +142,7 @@ export class Store<Args,Data,Err> {
             return this.request(args);
         }
 
-        return this.read(args) as StoreItem<Data,Err>;
+        return this.read(args);
     }
 
     //
@@ -170,7 +172,7 @@ export class Store<Args,Data,Err> {
             requestId: this.requestId
         };
 
-        return this.read(args) as StoreItem<Data,Err>;
+        return this.read(args);
     };
 
     // receive() action
@@ -196,7 +198,6 @@ export class Store<Args,Data,Err> {
         const key = argsToKey(args);
         const item = this._getOrCreate(key);
         item.loading = loading;
-        item.time = new Date(Date.now());
     };
 
     // setData() action
@@ -214,7 +215,6 @@ export class Store<Args,Data,Err> {
         item.hasError = false;
         item.error = undefined;
         item.data = data;
-        item.time = new Date(Date.now());
     };
 
     // setData() action
@@ -230,7 +230,6 @@ export class Store<Args,Data,Err> {
         item.loading = false;
         item.hasError = true;
         item.error = error;
-        item.time = new Date(Date.now());
     };
 
     // remove() action
