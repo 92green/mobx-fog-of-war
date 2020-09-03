@@ -19,4 +19,8 @@ describe('argsToKey', () => {
         expect(argsToKey({a:null,b:1})).toEqual(argsToKey({b:1}));
         expect(argsToKey({a:undefined,b:1})).toEqual(argsToKey({b:1}));
     });
+
+    it('should produce empty string for undefined', () => {
+        expect(argsToKey(undefined)).toBe('');
+    });
 });
