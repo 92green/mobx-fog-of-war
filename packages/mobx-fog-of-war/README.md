@@ -1,6 +1,6 @@
 # mobx-fog-of-war ☁️ ⚔️ 🤯
 
-[![npm](https://img.shields.io/npm/v/mobx-fog-of-war.svg)](https://www.npmjs.com/package/mobx-fog-of-war) ![Master build](https://github.com/92green/mobx-fog-of-war/workflows/CI/badge.svg?branch=master) ![Coverage 100%](https://img.shields.io/badge/coverage-100%25-green) ![Size: <1.7KB](https://img.shields.io/badge/Size-<1.7KB-blue) ![Maturity: Early Days](https://img.shields.io/badge/Maturity-Early%20days-yellow) ![Coolness Moderate](https://img.shields.io/badge/Coolness-Moderate-blue) 
+[![npm](https://img.shields.io/npm/v/mobx-fog-of-war.svg)](https://www.npmjs.com/package/mobx-fog-of-war) ![Master build](https://github.com/92green/mobx-fog-of-war/workflows/CI/badge.svg?branch=master) ![Coverage 100%](https://img.shields.io/badge/coverage-100%25-green) ![Size: <1.8KB](https://img.shields.io/badge/Size-<1.8KB-blue) ![Maturity: Early Days](https://img.shields.io/badge/Maturity-Early%20days-yellow) ![Coolness Moderate](https://img.shields.io/badge/Coolness-Moderate-blue) 
 
 ![aoe](https://user-images.githubusercontent.com/345320/91411571-ddf2da80-e88b-11ea-8de7-c0f3462991f4.gif)
 
@@ -17,13 +17,15 @@ If your _server_ is performing data joins (as many graphql APIs tend to do) then
 
 Install with `npm install react mobx mobx-react mobx-fog-of-war`
 
-- Small bundle: `Store` + `asyncRequest` < 1.1KB gzipped, entire library < 1.7KB gzipped
+- Small bundle: `Store` + `asyncRequest` < 1.2KB gzipped, entire library < 1.8KB gzipped
 - 100% [typescript typed](https://www.typescriptlang.org/)
 - 100% tested with [jest](https://jestjs.io/), [rx marble tests](https://rxjs-dev.firebaseapp.com/guide/testing/internal-marble-tests) and [enzyme](https://github.com/enzymejs/enzyme)
 - Efficient bundling with [rollup](https://rollupjs.org/guide/en/)
 - Project setup by [tsdx](https://tsdx.io/)
 - Demo site powered by [nextjs](https://nextjs.org/)
 - Monorepo managed with [lerna](https://github.com/lerna/lerna)
+
+## Example Usage
 
 ```js
 import {Store, asyncRequest} from 'mobx-fog-of-war';
@@ -49,7 +51,6 @@ const [StoreProvider, useStore] = provideStores({userStore, petStore});
 
 import React from 'react';
 import {observer} from 'mobx-react';
-import 'mobx-react/batchingForReactDom';
 
 const Main = (props) => {
     return <StoreProvider>
@@ -57,14 +58,14 @@ const Main = (props) => {
     </StoreProvider>;
 };
 
-const Loader = (props) => {
+const Loader = observer(props => {
     let {storeItem, children} = props;
     if(!storeItem) return null;
     if(storeItem.loading) return <div>Loading</div>;
     if(storeItem.hasError) return <div>Error: {storeItem.error.message}</div>;
     if(!storeItem.hasData) return <div>Not found</div>;
     return children();
-};
+});
 
 const UserView = observer(props => {
     const {userStore} = useStore();
@@ -72,7 +73,7 @@ const UserView = observer(props => {
     const user = userFromStore.data;
 
     return <Loader storeItem={userFromStore}>
-        {() => <div>
+        {() => user && <div>
             Name: {user.name}
             Pets: {user.petIds.map(petId => <PetView key={petId} petId={petId} />)}
         </div>}
@@ -81,11 +82,11 @@ const UserView = observer(props => {
 
 const PetView = observer(props => {
     const {petStore} = useStore();
-    const petFromStore = userStore.useGet(props.petId);
+    const petFromStore = petStore.useGet(props.petId);
     const pet = petFromStore.data;
 
     return <Loader storeItem={petFromStore}>
-        {() => <div>
+        {() => pet && <div>
             Pet name: {pet.name}
         </div>}
     </Loader>;
