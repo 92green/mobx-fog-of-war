@@ -157,13 +157,13 @@ export class Store<A,D extends NotUndefined,E extends NotUndefined,AA=string> {
         const item = this.read(args);
 
         const hasItemExpired = (item: StoreItem<D,E>): boolean => {
-            const slateTime: number = typeof options.staleTime === 'number'
+            const staleTime: number = typeof options.staleTime === 'number'
                 ? options.staleTime
                 : this.staleTime;
 
-            if(slateTime === -1) return false;
-            if(slateTime === 0) return true;
-            return new Date(Date.now()) > new Date(item.time.getTime() + slateTime * 1000);
+            if(staleTime === -1) return false;
+            if(staleTime === 0) return true;
+            return new Date(Date.now()) > new Date(item.time.getTime() + staleTime * 1000);
         };
 
         if(!item.loading && (!item.hasData || hasItemExpired(item))) {
