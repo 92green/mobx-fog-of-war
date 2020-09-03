@@ -22,5 +22,5 @@ export const argsToKey = (args: unknown): string => {
     }
 
     // stringify result
-    return JSON.stringify(args);
+    return JSON.stringify(args) || '';
 };

@@ -45,39 +45,46 @@ export type Receive<A,D,E> = {
 
 export type Logger = (...args: unknown[]) => unknown;
 
-export interface StoreOptions<A,D,E> {
+export interface StoreOptions<A,D,E,AA> {
     name?: string;
-    request?: (store: Store<A,D,E>) => void;
+    request?: (store: Store<A,D,E,AA>) => void;
     staleTime?: number;
     log?: Logger;
 }
 
-export interface GetOptions {
+export interface GetOptions<AA> {
     staleTime?: number;
+    alias?: AA;
 }
 
-export interface UseGetOptions {
+export interface RequestOptions<AA> {
+    alias?: AA;
+}
+
+export interface UseGetOptions<AA> {
     staleTime?: number;
     dependencies?: unknown[];
+    alias?: AA;
 }
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 export type NotUndefined = {} | null;
 
-export class Store<A,D extends NotUndefined,E extends NotUndefined> {
+export class Store<A,D extends NotUndefined,E extends NotUndefined,AA=string> {
 
     name: string;
     staleTime: number;
     log: Logger;
 
     @observable cache: Map<string, StoreItem<D,E>> = new Map();
+    aliases: Map<string, string> = new Map();
 
     // nextRequest will change each time there is a new request
     // chain off it to go fetch some data
     @observable nextRequest: NextRequest<A>|undefined;
     requestId = 0;
 
-    constructor(options: StoreOptions<A,D,E> = {}) {
+    constructor(options: StoreOptions<A,D,E,AA> = {}) {
         const {
             name = 'unnamed',
             request,
@@ -120,15 +127,34 @@ export class Store<A,D extends NotUndefined,E extends NotUndefined> {
         return this._getOrCreate(key);
     }
 
+    // readAlias()
+    //
+    // reads an item from cache via its alias
+    // aliases are set by get(), request() or useGet()
+    // an alias always refers to a single item in cache at a time
+    // although the item being referred to may change
+
+    @action
+    readAlias = (args: AA): StoreItem<D,E> => {
+        const aliasKey = argsToKey(args);
+        const key = this.aliases.get(aliasKey) || '?';
+        // ^ if alias not found, a '?' empty storeitem item will be created
+        // which will never be updated and is used merely to return from
+        // this and any future calls toreadAlias
+        return this._getOrCreate(key);
+    }
+
     // get()
     //
     // gets an item, either from cache or by requesting it if required
     // returns the mobx observable for the item
 
-    get = (args: A, options: GetOptions = {}): StoreItem<D,E> => {
-        const key = argsToKey(args);
+    get = (args: A, options: GetOptions<AA> = {}): StoreItem<D,E> => {
+        if('alias' in options) {
+            this.setAlias(args, options.alias as AA);
+        }
 
-        const item = this.cache.get(key);
+        const item = this.read(args);
 
         const hasItemExpired = (item: StoreItem<D,E>): boolean => {
             const staleTime: number = typeof options.staleTime === 'number'
@@ -140,11 +166,11 @@ export class Store<A,D extends NotUndefined,E extends NotUndefined> {
             return new Date(Date.now()) > new Date(item.time.getTime() + staleTime * 1000);
         };
 
-        if(!item || (!item.loading && (!item.hasData || hasItemExpired(item)))) {
+        if(!item.loading && (!item.hasData || hasItemExpired(item))) {
             return this.request(args);
         }
 
-        return this.read(args);
+        return item;
     }
 
     //
@@ -159,7 +185,11 @@ export class Store<A,D extends NotUndefined,E extends NotUndefined> {
     // make a request for data
 
     @action
-    request = (args: A): StoreItem<D,E> => {
+    request = (args: A, options: RequestOptions<AA> = {}): StoreItem<D,E> => {
+        if('alias' in options) {
+            this.setAlias(args, options.alias as AA);
+        }
+
         const key = argsToKey(args);
 
         this.log(`${this.name}: requesting ${key}:`, args);
@@ -223,7 +253,7 @@ export class Store<A,D extends NotUndefined,E extends NotUndefined> {
         item.data = data;
     };
 
-    // setData() action
+    // setError() action
     //
     // for a given key, set an item's data in cache
 
@@ -242,6 +272,16 @@ export class Store<A,D extends NotUndefined,E extends NotUndefined> {
         item.error = error;
     };
 
+    // setAlias()
+    //
+    // set an alias for a set of args
+
+    setAlias = (args: A, alias: AA): void => {
+        const key = argsToKey(args);
+        const aliasKey = argsToKey(alias);
+        this.aliases.set(aliasKey, key);
+    };
+
     // remove() action
     //
     // for a given key, remove the cached item
@@ -258,9 +298,9 @@ export class Store<A,D extends NotUndefined,E extends NotUndefined> {
     // because React doesn't like side effects during a render
     // call it every render because this'll be deduped upstream anyway
 
-    useGet = (args: A, {staleTime, dependencies = []}: UseGetOptions = {}): StoreItem<D,E>|undefined => {
+    useGet = (args: A, {dependencies = [], ...restOptions}: UseGetOptions<AA> = {}): StoreItem<D,E>|undefined => {
         const key = argsToKey(args);
-        useEffect(() => void this.get(args, {staleTime}), [key, ...dependencies]);
+        useEffect(() => void this.get(args, restOptions), [key, ...dependencies]);
         return this.read(args);
     };
 }
