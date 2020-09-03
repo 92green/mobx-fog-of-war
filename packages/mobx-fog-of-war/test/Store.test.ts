@@ -425,6 +425,55 @@ describe('Store', () => {
         });
     });
 
+    describe('StoreItem aliases', () => {
+        it('should set an alias, and readAlias from that alias', () => {
+            const store = new Store<number,string,string,string>();
+            store.request = jest.fn(store.request);
+
+            store.setData(1, 'hello');
+            store.setData(2, 'hello?');
+            store.setAlias(1, 'foo');
+
+            expect(store.read(1).data).toBe('hello');
+            expect(store.readAlias('foo').data).toBe('hello');
+
+            store.setAlias(2, 'foo');
+            expect(store.readAlias('foo').data).toBe('hello?');
+        });
+
+        it('should get() using an alias, and readAlias from that alias', () => {
+            const store = new Store<number,string,string,string>();
+            store.request = jest.fn(store.request);
+
+            store.get(1, {alias: 'foo'});
+            store.setData(1, 'hello');
+            store.setData(2, 'hello?');
+
+            expect(store.read(1).data).toBe('hello');
+            expect(store.readAlias('foo').data).toBe('hello');
+
+            store.get(2, {alias: 'foo'});
+            expect(store.readAlias('foo').data).toBe('hello?');
+        });
+
+        it('should request() using an alias, and readAlias from that alias', () => {
+            const store = new Store<number,string,string,string>();
+            store.request = jest.fn(store.request);
+
+            expect(store.readAlias('foo').data).toBe(undefined);
+
+            store.request(1, {alias: 'foo'});
+            store.setData(1, 'hello');
+            store.setData(2, 'hello?');
+
+            expect(store.read(1).data).toBe('hello');
+            expect(store.readAlias('foo').data).toBe('hello');
+
+            store.request(2, {alias: 'foo'});
+            expect(store.readAlias('foo').data).toBe('hello?');
+        });
+    });
+
     describe('StoreItem.toPromise()', () => {
 
         it('should turn the observable item returned from a new request() into a pending promise', async () => {
