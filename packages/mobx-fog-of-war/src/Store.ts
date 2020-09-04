@@ -77,7 +77,7 @@ export class Store<A,D extends NotUndefined,E extends NotUndefined,AA=string> {
     log: Logger;
 
     @observable cache: Map<string, StoreItem<D,E>> = new Map();
-    aliases: Map<string, string> = new Map();
+    @observable aliases: Map<string, string> = new Map();
 
     // nextRequest will change each time there is a new request
     // chain off it to go fetch some data
@@ -102,14 +102,16 @@ export class Store<A,D extends NotUndefined,E extends NotUndefined,AA=string> {
         }
     }
 
-    _getOrCreate = (key: string): StoreItem<D,E> => {
-        let item = this.cache.get(key);
-        if(!item) {
-            item = new StoreItem();
-            item.time = new Date(Date.now());
-            this.cache.set(key, item);
-        }
+    @action
+    _create = (key: string): StoreItem<D,E> => {
+        const item: StoreItem<D,E> = new StoreItem();
+        item.time = new Date(Date.now());
+        this.cache.set(key, item);
         return item;
+    };
+
+    _getOrCreate = (key: string): StoreItem<D,E> => {
+        return this.cache.get(key) || this._create(key);
     };
 
     // read()
@@ -121,7 +123,6 @@ export class Store<A,D extends NotUndefined,E extends NotUndefined,AA=string> {
     // so all changes to the item can be observed,
     // or turned into an rxjs observable to be observed that way
 
-    @action
     read = (args: A): StoreItem<D,E> => {
         const key = argsToKey(args);
         return this._getOrCreate(key);
@@ -134,7 +135,6 @@ export class Store<A,D extends NotUndefined,E extends NotUndefined,AA=string> {
     // an alias always refers to a single item in cache at a time
     // although the item being referred to may change
 
-    @action
     readAlias = (args: AA): StoreItem<D,E> => {
         const aliasKey = argsToKey(args);
         const key = this.aliases.get(aliasKey) || '?';
@@ -276,6 +276,7 @@ export class Store<A,D extends NotUndefined,E extends NotUndefined,AA=string> {
     //
     // set an alias for a set of args
 
+    @action
     setAlias = (args: A, alias: AA): void => {
         const key = argsToKey(args);
         const aliasKey = argsToKey(alias);

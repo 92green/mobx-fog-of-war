@@ -113,14 +113,14 @@ const fakeGetComments = async (args: CommentArgs): Promise<Comment[]> => {
     return comments[args.userId] || [];
 };
 
-// const fakeFlagComment = async (args) => {
-// // eslint-disable-next-line no-console
-//     console.log(`Comments Fetcher: flagging a comment`, args);
-//     await new Promise(resolve => setTimeout(resolve, 1400));
-//     return {
-//         yeahCool: true
-//     };
-// };
+const fakeFlagComment = async (args) => {
+// eslint-disable-next-line no-console
+    console.log(`Comments Fetcher: flagging a comment`, args);
+    await new Promise(resolve => setTimeout(resolve, 1400));
+    return {
+        yeahCool: true
+    };
+};
 
 interface Place {
     id: string;
@@ -180,6 +180,12 @@ const commentListStore = new Store<CommentArgs,Comment[],string>({
     request: asyncRequest(fakeGetComments)
 });
 
+const commentFlagStore = new Store<unknown,unknown,string>({
+    name: 'Comment flag Store',
+    staleTime: 0, // always request new
+    request: asyncRequest(fakeFlagComment)
+});
+
 const placeStore = new Store<PlaceArgs,Place,string>({
     name: 'Place Store!',
     request: rxRequest(
@@ -197,12 +203,14 @@ const placeStore = new Store<PlaceArgs,Place,string>({
 interface MyStores {
     userStore: Store<UserArgs,User,string>;
     commentListStore: Store<CommentArgs,Comment[],string>;
+    commentFlagStore: Store<unknown,unknown,string>;
     placeStore: Store<PlaceArgs,Place,string>;
 }
 
 const stores: MyStores = {
     userStore,
     commentListStore,
+    commentFlagStore,
     placeStore
 };
 
@@ -215,6 +223,16 @@ const stores: MyStores = {
 autorun(() => {
 // eslint-disable-next-line no-console
     console.log('Autorun example: User C changed:', toJS(userStore.read("c")));
+});
+
+autorun(() => {
+// eslint-disable-next-line no-console
+    console.log('commentFlagStore.aliases changed:', toJS(commentFlagStore.aliases));
+});
+
+autorun(() => {
+// eslint-disable-next-line no-console
+    console.log('commentFlagStore.aliases changed latest:', toJS(commentFlagStore.readAlias("latest")));
 });
 
 //
@@ -329,14 +347,11 @@ const SearchForm = (props: SearchFormProps): React.ReactElement => {
 const UserView = observer(props => {
     const {userId} = props;
 
-    const {userStore, commentListStore} = useStore();
+    const {userStore, commentListStore, commentFlagStore} = useStore();
     const userFromStore = userStore.useGet(userId);
     const commentFromStore = commentListStore.useGet({userId});
 
-    // if(!userFromStore) return null;
-    // if(userFromStore.loading) return <Box>Loading</Box>;
-    // if(userFromStore.error) return <Box>Error: {userFromStore.error}</Box>;
-    // if(!userFromStore.data) return <Box>User not found</Box>;
+    const commentFlagFromStore = commentFlagStore.readAlias('latest');
 
     const retry = () => userStore.get(userId, {staleTime: 0});
 
@@ -358,9 +373,18 @@ const UserView = observer(props => {
                         })}
                     </Box>
                 </>}
+                <FlagStatus commentFlagFromStore={commentFlagFromStore} />
             </Box>;
         }}
     </LoadingBoundary>;
+});
+
+const FlagStatus = observer((props) => {
+    const {commentFlagFromStore} = props;
+    if(commentFlagFromStore.loading) return <Box>Flagging...</Box>;
+    if(commentFlagFromStore.error) return <Box>Error: {commentFlagFromStore.error}</Box>;
+    if(!commentFlagFromStore.hasData) return null;
+    return <span>flagged</span>;
 });
 
 // exciting comment component that tries to load more details
@@ -368,8 +392,10 @@ const UserView = observer(props => {
 const Comment = observer((props) => {
     const {comment} = props;
 
-    const {placeStore} = useStore();
+    const {placeStore, commentFlagStore} = useStore();
     const placeFromStore = placeStore.useGet(comment.targetId);
+
+    const flag = () => commentFlagStore.request({comment}, {alias: 'latest'});
 
     return <Box mb={2}>
         {`"${comment.verb}"`}
@@ -377,6 +403,9 @@ const Comment = observer((props) => {
         <LoadingBoundary dependencies={[placeFromStore]}>
             {() => <span>at {placeFromStore.data ? placeFromStore.data.name : 'unknown place'}</span>}
         </LoadingBoundary>
+        <div>
+            <small onClick={flag}>Flag this comment</small>
+        </div>
     </Box>;
 });
 
