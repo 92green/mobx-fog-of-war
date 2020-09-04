@@ -97,12 +97,15 @@ describe('Store', () => {
             expect(item.data).toBe('deep');
         });
 
-        it('should not accept undefined', () => {
+        it('should treat undefined as "no data exists" and remove the item from cache', () => {
             const store = new Store<unknown,string,string>();
 
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-expect-error
-            expect(() => store.setData(1, undefined)).toThrow('Data cannot be undefined');
+            store.setData(1, 'one');
+            store.setData(1, undefined);
+            const item = store.read(1);
+            expect(item.hasData).toBe(false);
+            expect(item.hasError).toBe(false);
+            expect(item.data).toBe(undefined);
         });
     });
 

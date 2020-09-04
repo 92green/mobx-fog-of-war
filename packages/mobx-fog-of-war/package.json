@@ -18,6 +18,7 @@
     "lint": "yarn eslint src/**/* --ext .js,.ts,.jsx,.tsx",
     "size": "yarn size-limit",
     "prepare": "tsdx build",
+    "test-all": "yarn build && yarn test && yarn lint && yarn size",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"
   },

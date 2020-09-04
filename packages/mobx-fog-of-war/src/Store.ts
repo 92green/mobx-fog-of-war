@@ -213,7 +213,7 @@ export class Store<A,D extends NotUndefined,E extends NotUndefined,AA=string> {
     // basd on if it is data or error
 
     @action
-    receive = (receive: Receive<A,D,E>): void => {
+    receive = (receive: Receive<A,D|undefined,E>): void => {
         if('error' in receive) {
             this.setError(receive.args, receive.error);
         } else {
@@ -237,9 +237,10 @@ export class Store<A,D extends NotUndefined,E extends NotUndefined,AA=string> {
     // for a given key, set an item's data in cache
 
     @action
-    setData = (args: A, data: D): void => {
+    setData = (args: A, data: D|undefined): void => {
         if(data === undefined) {
-            throw new Error('Data cannot be undefined');
+            this.remove(args);
+            return;
         }
 
         const key = argsToKey(args);
@@ -247,7 +248,7 @@ export class Store<A,D extends NotUndefined,E extends NotUndefined,AA=string> {
 
         const item = this._getOrCreate(key);
         item.loading = false;
-        item.hasData = data !== undefined;
+        item.hasData = true;
         item.hasError = false;
         item.error = undefined;
         item.data = data;
