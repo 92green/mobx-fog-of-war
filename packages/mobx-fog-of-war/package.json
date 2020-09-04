@@ -1,5 +1,5 @@
 {
-  "version": "0.3.0",
+  "version": "0.3.1",
   "license": "MIT",
   "main": "dist/index.js",
   "description": "A simple, lazy front-end request coordinator and cache for React and mobx. Load your data by simply trying to view it, and build up a picture of your server's data over time.",
