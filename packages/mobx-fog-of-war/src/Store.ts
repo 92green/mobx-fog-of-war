@@ -123,7 +123,7 @@ export class Store<A,D extends NotUndefined,E extends NotUndefined,AA=string> {
     // so all changes to the item can be observed,
     // or turned into an rxjs observable to be observed that way
 
-    read = (args: A): StoreItem<D,E> => {
+    read = (args: A|undefined): StoreItem<D,E> => {
         const key = argsToKey(args);
         return this._getOrCreate(key);
     }
@@ -149,7 +149,7 @@ export class Store<A,D extends NotUndefined,E extends NotUndefined,AA=string> {
     // gets an item, either from cache or by requesting it if required
     // returns the mobx observable for the item
 
-    get = (args: A, options: GetOptions<AA> = {}): StoreItem<D,E> => {
+    get = (args: A|undefined, options: GetOptions<AA> = {}): StoreItem<D,E> => {
         if('alias' in options) {
             this.setAlias(args, options.alias as AA);
         }
@@ -166,7 +166,7 @@ export class Store<A,D extends NotUndefined,E extends NotUndefined,AA=string> {
             return new Date(Date.now()) > new Date(item.time.getTime() + staleTime * 1000);
         };
 
-        if(!item.loading && (!item.hasData || hasItemExpired(item))) {
+        if(args !== undefined && !item.loading && (!item.hasData || hasItemExpired(item))) {
             return this.request(args);
         }
 
@@ -278,7 +278,7 @@ export class Store<A,D extends NotUndefined,E extends NotUndefined,AA=string> {
     // set an alias for a set of args
 
     @action
-    setAlias = (args: A, alias: AA): void => {
+    setAlias = (args: A|undefined, alias: AA): void => {
         const key = argsToKey(args);
         const aliasKey = argsToKey(alias);
         this.aliases.set(aliasKey, key);
@@ -300,7 +300,7 @@ export class Store<A,D extends NotUndefined,E extends NotUndefined,AA=string> {
     // because React doesn't like side effects during a render
     // call it every render because this'll be deduped upstream anyway
 
-    useGet = (args: A, {dependencies = [], ...restOptions}: UseGetOptions<AA> = {}): StoreItem<D,E>|undefined => {
+    useGet = (args: A|undefined, {dependencies = [], ...restOptions}: UseGetOptions<AA> = {}): StoreItem<D,E>|undefined => {
         const key = argsToKey(args);
         useEffect(() => void this.get(args, restOptions), [key, ...dependencies]);
         return this.read(args);

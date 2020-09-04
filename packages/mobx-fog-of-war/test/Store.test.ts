@@ -308,6 +308,18 @@ describe('Store', () => {
             expect(mocked(store.request).mock.calls[0][0]).toBe(1);
         });
 
+        it('should not request() if args is undefined', () => {
+            const store = new Store<number,string,string>();
+            store.request = jest.fn(store.request);
+
+            const item = store.get(undefined);
+
+            expect(item.loading).toBe(false);
+            expect(item.hasData).toBe(false);
+
+            expect(mocked(store.request)).toHaveBeenCalledTimes(0);
+        });
+
         it('by default, should not request() again even if data was received', () => {
             const store = new Store<number,string,string>();
             store.request = jest.fn(store.request);
