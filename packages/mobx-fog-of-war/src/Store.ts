@@ -10,7 +10,7 @@ export class StoreItem<D,E> {
     @observable error: E|undefined;
     @observable time = new Date(Date.now());
 
-    toPromise = (): Promise<StoreItem<D,E>> => {
+    promise = (): Promise<StoreItem<D,E>> => {
         if(!this.loading) return Promise.resolve(this);
 
         let resolver: (() => void)|undefined;
@@ -27,6 +27,10 @@ export class StoreItem<D,E> {
         });
 
         return promise as Promise<StoreItem<D,E>>;
+    };
+
+    tuple = (): [data: D|undefined, storeItem: StoreItem<D,E>] => {
+        return [this.data, this];
     };
 }
 

@@ -489,7 +489,7 @@ describe('Store', () => {
         });
     });
 
-    describe('StoreItem.toPromise()', () => {
+    describe('StoreItem.promise()', () => {
 
         it('should turn the observable item returned from a new request() into a pending promise', async () => {
             const store = new Store<number,string,string>();
@@ -498,7 +498,7 @@ describe('Store', () => {
                 store.setData(1, 'hello');
             }, 1000);
 
-            const result = await store.request(1).toPromise();
+            const result = await store.request(1).promise();
 
             expect(result.loading).toBe(false);
             expect(result.data).toBe('hello');
@@ -511,7 +511,7 @@ describe('Store', () => {
                 store.setError(1, 'error');
             }, 1000);
 
-            const result = await store.request(1).toPromise();
+            const result = await store.request(1).promise();
 
             expect(result.loading).toBe(false);
             expect(result.error).toBe('error');
@@ -522,7 +522,7 @@ describe('Store', () => {
 
             store.setData(1, 'hello');
             const item = store.read(1);
-            const result = await item.toPromise();
+            const result = await item.promise();
             expect(result).toBe(store.read(1));
         });
 
@@ -531,8 +531,21 @@ describe('Store', () => {
 
             store.setError(1, 'error');
             const item = store.read(1);
-            const result = await item.toPromise();
+            const result = await item.promise();
             expect(result).toBe(store.read(1));
+        });
+    });
+
+    describe('StoreItem.tuple()', () => {
+
+        it('should turn the store item into a duple for easy destructuring', async () => {
+            const store = new Store<number,string,string>();
+            store.setData(1, 'hello');
+            const storeItem = store.read(1);
+            const [data, item] = store.read(1).tuple();
+
+            expect(data).toBe(storeItem.data);
+            expect(item).toBe(storeItem);
         });
     });
 
