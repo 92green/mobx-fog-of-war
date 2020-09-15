@@ -2,6 +2,11 @@ import {observable, action, autorun} from 'mobx';
 import {useEffect} from 'react';
 import {argsToKey} from './argsToKey';
 
+export type StoreItemTuple<D,E> = [
+    D|undefined,
+    StoreItem<D,E>
+];
+
 export class StoreItem<D,E> {
     @observable loading = false;
     @observable data: D|undefined;
@@ -10,7 +15,7 @@ export class StoreItem<D,E> {
     @observable error: E|undefined;
     @observable time = new Date(Date.now());
 
-    toPromise = (): Promise<StoreItem<D,E>> => {
+    promise = (): Promise<StoreItem<D,E>> => {
         if(!this.loading) return Promise.resolve(this);
 
         let resolver: (() => void)|undefined;
@@ -27,6 +32,10 @@ export class StoreItem<D,E> {
         });
 
         return promise as Promise<StoreItem<D,E>>;
+    };
+
+    tuple = (): StoreItemTuple<D,E> => {
+        return [this.data, this];
     };
 }
 

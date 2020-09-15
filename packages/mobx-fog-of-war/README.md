@@ -69,8 +69,7 @@ const Loader = observer(props => {
 
 const UserView = observer(props => {
     const {userStore} = useStore();
-    const userFromStore = userStore.useGet(props.userId);
-    const user = userFromStore.data;
+    const [user, userFromStore] = userStore.useGet(props.userId).tuple();
 
     return <Loader storeItem={userFromStore}>
         {() => user && <div>
@@ -82,8 +81,7 @@ const UserView = observer(props => {
 
 const PetView = observer(props => {
     const {petStore} = useStore();
-    const petFromStore = petStore.useGet(props.petId);
-    const pet = petFromStore.data;
+    const [pet, petFromStore] = petStore.useGet(props.petId).tuple();
 
     return <Loader storeItem={petFromStore}>
         {() => pet && <div>

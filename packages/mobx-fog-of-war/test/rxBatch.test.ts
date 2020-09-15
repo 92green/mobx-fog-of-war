@@ -83,6 +83,7 @@ describe('rxBatch', () => {
                         bufferTime: 10,
                         batch: 3,
                         getArgs: (item: Data) => item.id,
+                        getData: (item: Data) => item,
                         requestError: e => e,
                         missingError: () => 'missing'
                     })
@@ -134,6 +135,7 @@ describe('rxBatch', () => {
                         bufferTime: 10,
                         batch: 3,
                         getArgs: (item: Data) => item.id,
+                        getData: (item: Data) => item,
                         requestError: e => `error: ${e}`,
                         missingError: () => 'missing'
                     })
@@ -194,6 +196,7 @@ describe('rxBatch', () => {
                         bufferTime: 10,
                         batch: 3,
                         getArgs: (item: Data) => item.id,
+                        getData: (item: Data) => item,
                         requestError: e => e,
                         missingError: () => 'missing'
                     })

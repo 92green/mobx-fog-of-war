@@ -14,17 +14,18 @@ describe('sortbyArgsArray', () => {
             {id: 1, name: 'one'}
         ];
 
-        const result = sortByArgsArray<number,Item,string>(
+        const result = sortByArgsArray<number,string,string,Item>(
             [1,2,3,4],
             items,
-            item => item.id,
+            (item: Item) => item.id,
+            (item: Item) => item.name,
             args => `${args} not found`
         );
 
         expect(result).toEqual([
-            {args: 1, data: {id: 1, name: 'one'}},
-            {args: 2, data: {id: 2, name: 'two'}},
-            {args: 3, data: {id: 3, name: 'three'}},
+            {args: 1, data: 'one'},
+            {args: 2, data: 'two'},
+            {args: 3, data: 'three'},
             {args: 4, error: '4 not found'}
         ]);
 

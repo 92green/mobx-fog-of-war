@@ -189,11 +189,12 @@ const commentFlagStore = new Store<unknown,unknown,string>({
 const placeStore = new Store<PlaceArgs,Place,string>({
     name: 'Place Store!',
     request: rxRequest(
-        rxBatch({
+        rxBatch<PlaceArgs,Place,string,Place>({
             request: argsArray => fakeBatchGetPlace(argsArray),
             bufferTime: 100,
             batch: 10,
             getArgs: item => item.id,
+            getData: item => item,
             requestError: (reason: string) => reason,
             missingError: () => 'not found'
         })

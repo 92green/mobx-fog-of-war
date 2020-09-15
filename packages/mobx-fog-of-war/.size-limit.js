@@ -16,7 +16,7 @@ module.exports = [
         name: 'asyncRequest',
         path: "dist/mobx-fog-of-war.esm.js",
         import: "{ asyncRequest }",
-        limit: "1.3 KB",
+        limit: "1.4 KB",
         ignore: ['react','mobx']
     },
     {
@@ -44,7 +44,7 @@ module.exports = [
         name: 'sortByArgsArray',
         path: "dist/mobx-fog-of-war.esm.js",
         import: "{ sortByArgsArray }",
-        limit: "1.3 KB",
+        limit: "1.4 KB",
         ignore: ['react','mobx']
     },
     {
