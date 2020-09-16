@@ -280,6 +280,28 @@ describe('Store', () => {
         });
     });
 
+    describe('removeByAlias', () => {
+        it('should remove data from cache by an alias', () => {
+            const store = new Store<number,string,string>();
+
+            store.setData(1, 'one');
+            store.setAlias(1, 'alias1');
+            store.removeByAlias('alias1');
+
+            expect(store.read(1).data).toBe(undefined);
+            expect(store.readAlias('alias1').data).toBe(undefined);
+        });
+
+        it('should try and remove data from cache even if alias doesnt exist', () => {
+            const store = new Store<number,string,string>();
+
+            store.setData(1, 'one');
+            store.removeByAlias('alias1');
+
+            expect(store.read(1).data).toBe('one');
+        });
+    });
+
     describe('get() and request()', () => {
         it('should get an item from cache, and fire request()', () => {
             const store = new Store<number,string,string>();

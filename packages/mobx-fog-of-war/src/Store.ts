@@ -303,6 +303,19 @@ export class Store<A,D extends NotUndefined,E extends NotUndefined,AA=string> {
         this.cache.delete(key);
     };
 
+    // removeByAlias() action
+    //
+    // for a given alias, remove the cached item
+
+    @action
+    removeByAlias = (args: AA): void => {
+        const aliasKey = argsToKey(args);
+        const key = this.aliases.get(aliasKey) || '?';
+        if(key !== '?') {
+            this.cache.delete(key);
+        }
+    };
+
     // useGet()
     //
     // react hook to get data
