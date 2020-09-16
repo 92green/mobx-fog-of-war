@@ -156,7 +156,7 @@ export class Store<A,D extends NotUndefined,E extends NotUndefined,AA=string> {
     // get()
     //
     // gets an item, either from cache or by requesting it if required
-    // returns the mobx observable for the item
+    // returns a storeitem
 
     get = (args: A|undefined, options: GetOptions<AA> = {}): StoreItem<D,E> => {
         if('alias' in options) {
@@ -303,6 +303,19 @@ export class Store<A,D extends NotUndefined,E extends NotUndefined,AA=string> {
         this.cache.delete(key);
     };
 
+    // removeByAlias() action
+    //
+    // for a given alias, remove the cached item
+
+    @action
+    removeByAlias = (args: AA): void => {
+        const aliasKey = argsToKey(args);
+        const key = this.aliases.get(aliasKey) || '?';
+        if(key !== '?') {
+            this.cache.delete(key);
+        }
+    };
+
     // useGet()
     //
     // react hook to get data
@@ -311,7 +324,29 @@ export class Store<A,D extends NotUndefined,E extends NotUndefined,AA=string> {
 
     useGet = (args: A|undefined, {dependencies = [], ...restOptions}: UseGetOptions<AA> = {}): StoreItem<D,E> => {
         const key = argsToKey(args);
-        useEffect(() => void this.get(args, restOptions), [key, ...dependencies]);
+
+        useEffect(() => {
+            this.get(args, restOptions);
+        }, [key, ...dependencies]);
+
         return this.read(args);
+    };
+
+    // useBatchGet()
+    //
+    // react hook to get an array of items
+    // because React doesn't like side effects during a render
+    // call it every render because this'll be deduped upstream anyway
+
+    useBatchGet = (argsArray: A[]|undefined, {dependencies = [], ...restOptions}: UseGetOptions<AA> = {}): StoreItem<D,E>[] => {
+        if(argsArray === undefined) return [];
+
+        const keys = argsArray.map(args => argsToKey(args));
+
+        useEffect(() => {
+            argsArray.forEach(args => this.get(args, restOptions));
+        }, [...keys, ...dependencies]);
+
+        return argsArray.map(args => this.read(args));
     };
 }

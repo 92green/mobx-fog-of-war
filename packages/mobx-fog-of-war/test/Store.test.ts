@@ -1,4 +1,4 @@
-import {Store, argsToKey} from '../src/index';
+import {Store, StoreItem, argsToKey} from '../src/index';
 import {mocked} from 'ts-jest/utils';
 import React from 'react';
 import {toJS, autorun} from 'mobx';
@@ -10,6 +10,10 @@ const setNow = (ms: number): number => {
     Date.now = jest.spyOn(Date, 'now').mockImplementation(() => ms);
     return ms;
 };
+
+afterEach(() => {
+    jest.clearAllMocks();
+});
 
 describe('Store', () => {
 
@@ -277,6 +281,28 @@ describe('Store', () => {
             store.remove(1);
             const item = store.read(1);
             expect(item.data).toBe(undefined);
+        });
+    });
+
+    describe('removeByAlias', () => {
+        it('should remove data from cache by an alias', () => {
+            const store = new Store<number,string,string>();
+
+            store.setData(1, 'one');
+            store.setAlias(1, 'alias1');
+            store.removeByAlias('alias1');
+
+            expect(store.read(1).data).toBe(undefined);
+            expect(store.readAlias('alias1').data).toBe(undefined);
+        });
+
+        it('should try and remove data from cache even if alias doesnt exist', () => {
+            const store = new Store<number,string,string>();
+
+            store.setData(1, 'one');
+            store.removeByAlias('alias1');
+
+            expect(store.read(1).data).toBe('one');
         });
     });
 
@@ -558,7 +584,7 @@ describe('Store', () => {
             const store = new Store<number,string,string>();
             store.get = jest.fn();
 
-            store.useGet(1);
+            const storeItem = store.useGet(1);
             const key1 = argsToKey(1);
 
             expect(mocked(React.useEffect)).toHaveBeenCalledTimes(1);
@@ -569,16 +595,79 @@ describe('Store', () => {
             expect(mocked(store.get).mock.calls[0][0]).toBe(1);
             expect(mocked(store.get).mock.calls[0][1]).toEqual({});
 
+            expect(storeItem instanceof StoreItem).toBe(true);
+        });
+
+        it('should call get() with options', () => {
+            const store = new Store<number,string,string>();
+            store.get = jest.fn();
+
             store.useGet(2, {staleTime: 1, dependencies: ['foo']});
             const key2 = argsToKey(2);
 
-            expect(mocked(React.useEffect)).toHaveBeenCalledTimes(2);
-            expect(mocked(React.useEffect).mock.calls[1][1]).toEqual([key2, 'foo']);
-            mocked(React.useEffect).mock.calls[1][0]();
+            expect(mocked(React.useEffect)).toHaveBeenCalledTimes(1);
+            expect(mocked(React.useEffect).mock.calls[0][1]).toEqual([key2, 'foo']);
+            mocked(React.useEffect).mock.calls[0][0]();
 
-            expect(mocked(store.get)).toHaveBeenCalledTimes(2);
+            expect(mocked(store.get)).toHaveBeenCalledTimes(1);
+            expect(mocked(store.get).mock.calls[0][0]).toBe(2);
+            expect(mocked(store.get).mock.calls[0][1]).toEqual({staleTime: 1});
+        });
+    });
+
+    describe('useBatchGet', () => {
+
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        jest.spyOn(React, "useEffect").mockImplementation(() => {});
+
+        it('should call useEffect() and return read()[]', () => {
+            const store = new Store<number,string,string>();
+            store.get = jest.fn();
+
+            const items = store.useBatchGet([1,2,3]);
+            const keys = [1,2,3].map(n => argsToKey(n));
+
+            expect(mocked(React.useEffect)).toHaveBeenCalledTimes(1);
+            expect(mocked(React.useEffect).mock.calls[0][1]).toEqual(keys);
+            mocked(React.useEffect).mock.calls[0][0]();
+
+            expect(mocked(store.get)).toHaveBeenCalledTimes(3);
+            expect(mocked(store.get).mock.calls[0][0]).toBe(1);
             expect(mocked(store.get).mock.calls[1][0]).toBe(2);
-            expect(mocked(store.get).mock.calls[1][1]).toEqual({staleTime: 1});
+            expect(mocked(store.get).mock.calls[2][0]).toBe(3);
+            expect(mocked(store.get).mock.calls[0][1]).toEqual({});
+            expect(mocked(store.get).mock.calls[1][1]).toEqual({});
+            expect(mocked(store.get).mock.calls[2][1]).toEqual({});
+
+            expect(items[0] instanceof StoreItem).toBe(true);
+            expect(items[1] instanceof StoreItem).toBe(true);
+            expect(items[2] instanceof StoreItem).toBe(true);
+        });
+
+        it('should not call useEffect() if called with undefined', () => {
+            const store = new Store<number,string,string>();
+            store.get = jest.fn();
+
+            const items = store.useBatchGet(undefined);
+            expect(items).toEqual([]);
+            expect(mocked(React.useEffect)).toHaveBeenCalledTimes(0);
+            expect(mocked(store.get)).toHaveBeenCalledTimes(0);
+        });
+
+        it('should call get() with options', () => {
+            const store = new Store<number,string,string>();
+            store.get = jest.fn();
+
+            store.useBatchGet([2], {staleTime: 1, dependencies: ['foo']});
+            const key2 = argsToKey(2);
+
+            expect(mocked(React.useEffect)).toHaveBeenCalledTimes(1);
+            expect(mocked(React.useEffect).mock.calls[0][1]).toEqual([key2, 'foo']);
+            mocked(React.useEffect).mock.calls[0][0]();
+
+            expect(mocked(store.get)).toHaveBeenCalledTimes(1);
+            expect(mocked(store.get).mock.calls[0][0]).toBe(2);
+            expect(mocked(store.get).mock.calls[0][1]).toEqual({staleTime: 1});
         });
     });
 });
