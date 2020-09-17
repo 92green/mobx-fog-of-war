@@ -21,59 +21,61 @@ const users = [
 ];
 
 const siteConfig = {
-  title: 'Test Site', // Title for your website.
-  tagline: 'A website for testing',
-  url: 'https://your-docusaurus-test-site.com', // Your website URL
-  baseUrl: '/', // Base URL for your project */
+  title: 'mobx-fog-of-war ☁️ ⚔️ 🤯', // Title for your website.
+  tagline: `A simple, lazy front-end request coordinator and cache for React and mobx. Load your data by simply trying to view it, and build up a picture of your server's data over time.`,
+  url: 'https://92green.github.io', // Your website URL
+  baseUrl: '/mobx-fog-of-war/', // Base URL for your project */
   // For github.io type URLs, you would set the url and baseUrl like:
   //   url: 'https://facebook.github.io',
   //   baseUrl: '/test-site/',
 
   // Used for publishing and more
-  projectName: 'test-site',
-  organizationName: 'facebook',
+  projectName: 'mobx-fog-of-war',
+  organizationName: '92green',
   // For top-level user or org sites, the organization is still the same.
   // e.g., for the https://JoelMarcey.github.io site, it would be set like...
   //   organizationName: 'JoelMarcey'
 
   // For no header links in the top nav bar -> headerLinks: [],
   headerLinks: [
-    {doc: 'doc1', label: 'Docs'},
-    {doc: 'doc4', label: 'API'},
-    {page: 'help', label: 'Help'},
-    {blog: true, label: 'Blog'},
+    {doc: 'doc1', label: 'Documentation'},
+    { href: "https://github.com/92green/mobx-fog-of-war", label: "GitHub", external: true },
   ],
 
   // If you have users set above, you add it here:
   users,
 
   /* path to images for header/footer */
-  headerIcon: 'img/favicon.ico',
-  footerIcon: 'img/favicon.ico',
-  favicon: 'img/favicon.ico',
+  // headerIcon: 'img/favicon.ico',
+  // footerIcon: 'img/favicon.ico',
+  // favicon: 'img/favicon.ico',
 
   /* Colors for website */
   colors: {
-    primaryColor: '#5b8463',
-    secondaryColor: '#3f5c45',
+    primaryColor: '#0e151b',
+    secondaryColor: '#192644',
   },
 
   /* Custom fonts for website */
-  /*
+
   fonts: {
-    myFont: [
-      "Times New Roman",
-      "Serif"
+    mainFont: [
+      "Merriweather",
+      "serif"
     ],
-    myOtherFont: [
-      "-apple-system",
-      "system-ui"
+    monoFont: [
+      "Roboto Mono",
+      "monospace"
     ]
   },
-  */
+
+  stylesheets: [
+    "https://fonts.googleapis.com/css?family=Roboto+Mono"
+    // "https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;1,400&family=Roboto+Mono:ital,wght@0,400;0,500;0,700;1,400&display=swap"
+  ],
 
   // This copyright info is used in /core/Footer.js and blog RSS/Atom feeds.
-  copyright: `Copyright © ${new Date().getFullYear()} Your Name or Your Company Name`,
+  copyright: `Copyright © ${new Date().getFullYear()} Damien Clarke - 92green`,
 
   highlight: {
     // Highlight.js theme to use for syntax highlighting in code blocks.

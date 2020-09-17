@@ -7,6 +7,63 @@
 
 /* your custom css */
 
+html, body {
+  font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol;
+  text-rendering: optimizelegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+.mainContainer h1,
+.mainContainer h2,
+.mainContainer h3,
+.mainContainer h4,
+.mainContainer h5 {
+    letter-spacing: -.02em;
+    font-family: $monoFont;
+    font-weight: 700;
+}
+
+.mainContainer h1 {
+    font-size: 42px;
+}
+
+.mainContainer h2 {
+    font-size: 30px;
+}
+
+.mainContainer h3 {
+    font-size: 22px;
+}
+
+.fixedHeaderContainer header .headerTitle {
+    font-family: $monoFont;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.nav-site {
+    font-family: $monoFont;
+}
+
+/*.onPageNav ul li {
+    font-size: 16px;
+}
+
+.toc .toggleNav ul li a {
+    font-size: 16px;
+}*/
+
+.navigationSlider .slidingNav ul a[href*=github]:before {
+    content: "";
+    width: 32px;
+    height: 32px;
+    background: url(/mobx-fog-of-war/img/github-brand.svg);
+}
+
+.navigationSlider .slidingNav ul a[href*=github] {
+    font-size: 0;
+}
+
 @media only screen and (min-device-width: 360px) and (max-device-width: 736px) {
 }
 
@@ -21,3 +78,5 @@
 
 @media only screen and (min-width: 1500px) {
 }
+
+

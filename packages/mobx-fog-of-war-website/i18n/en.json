@@ -3,7 +3,7 @@
   "localized-strings": {
     "next": "Next",
     "previous": "Previous",
-    "tagline": "A website for testing",
+    "tagline": "A simple, lazy front-end request coordinator and cache for React and mobx. Load your data by simply trying to view it, and build up a picture of your server's data over time.",
     "docs": {
       "doc1": {
         "title": "Latin-ish",
@@ -23,10 +23,8 @@
       }
     },
     "links": {
-      "Docs": "Docs",
-      "API": "API",
-      "Help": "Help",
-      "Blog": "Blog"
+      "Documentation": "Documentation",
+      "GitHub": "GitHub"
     },
     "categories": {
       "Docusaurus": "Docusaurus",
