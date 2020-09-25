@@ -4,18 +4,33 @@
 
 ![aoe](https://user-images.githubusercontent.com/345320/91411571-ddf2da80-e88b-11ea-8de7-c0f3462991f4.gif)
 
+
 A simple, lazy front-end request coordinator and cache for [React](https://reactjs.org/) and [mobx](https://mobx.js.org/). Load your data by simply trying to view it, and build up a picture of your server's data over time.
 
-- Efficient UI updates with [mobx](https://mobx.js.org/) observables.
-- Connects to [rxjs](https://rxjs-dev.firebaseapp.com/) easily for fancy request behaviour.
-- No data pre-processing, normalisation or schemas.
-- Control your cache directly.
+### [Look here for documentation and examples](https://92green.github.io/mobx-fog-of-war/)
 
-You're not required to think about "requesting" data in advance. Just try to access it using `store.get()` or the `store.useGet()` React hook, and if the corresponding data in your cache is missing or stale it'll prompt your request function to go and load the data. This makes it easy to do your data joins on the front-end, right in your components, keeping your data-joining-logic as minimal as possible.
+You're not required to think about "requesting" data in advance. Just try to access it using [store.get()](store.md#storeget) or the [store.useGet()](store.md#storeuseget) React hook, and if the corresponding data in your cache is missing or stale it'll prompt your request function to go and load the data. This makes it easy to do your data joins on the front-end, right in your components, keeping your data-joining-logic as minimal as possible.
+
+- Efficient UI updates with [mobx](https://mobx.js.org/) observables.
+- Connects to [rxjs](https://rxjs-dev.firebaseapp.com/) easily for buffering and batching requests.
+- Control your cache directly.
+- No normalisation or schemas.
+
+When used with buffering and batching, it could be thought of as **"[dataloader](https://github.com/graphql/dataloader) but for React"**.
 
 If your _server_ is performing data joins (as many graphql APIs tend to do) then `mobx-fog-of-war` may not be right for you. In this case check out [enty](https://github.com/92green/enty) for normalised state management.
 
-Install with `npm install react mobx mobx-react mobx-fog-of-war`
+
+## Installation
+
+```bash
+yarn add react mobx mobx-react mobx-fog-of-war
+// or
+npm install --save react mobx mobx-react mobx-fog-of-war
+```
+
+
+## Nice things
 
 - Small bundle: `Store` + `asyncRequest` < 1.4KB gzipped, entire library < 2KB gzipped
 - 100% [typescript typed](https://www.typescriptlang.org/)
@@ -25,50 +40,48 @@ Install with `npm install react mobx mobx-react mobx-fog-of-war`
 - Demo site powered by [nextjs](https://nextjs.org/)
 - Monorepo managed with [lerna](https://github.com/lerna/lerna)
 
-## Example Usage
+## Example with React
 
-```js
+### 1. Set up your application's stores
+
+```typescript
+// requesters
+
+const getUser = async (id: UserArgs): Promise<User> => {
+    const response = await fetch(`http://example.com/user/${id}`)
+    return new User(await response.json());
+};
+
+const getPet = async (id: PetArgs): Promise<Pet> => {
+    const response = await fetch(`http://example.com/pet/${id}`)
+    return new Pet(await response.json());
+};
+
+// stores
+
 import {Store, asyncRequest} from 'mobx-fog-of-war';
-
-// getUser = async (id: UserArgs): Promise<User> => ...
-// getPet = async (id: PetArgs): Promise<Pet> => ...
 
 const userStore = new Store<string,User,Error>({
     name: 'User Store',
-    staleTime: 10, // seconds
+    staleTime: 60, // after 60 seconds, the item is eligible to be requested again
     request: asyncRequest(getUser)
 });
 
 const petStore = new Store<string,Pet,Error>({
     name: 'Pet Store',
-    staleTime: 10, // seconds
+    staleTime: 60,
     request: asyncRequest(getPet)
 });
+```
 
-const [StoreProvider, useStore] = provideStores({userStore, petStore});
+### 2. Components can request data
 
-// ...
-
-import React from 'react';
+```jsx
 import {observer} from 'mobx-react';
 
-const Main = (props) => {
-    return <StoreProvider>
-        <UserView userId={props.userId} />
-    </StoreProvider>;
-};
-
-const Loader = observer(props => {
-    let {storeItem, children} = props;
-    if(!storeItem) return null;
-    if(storeItem.loading) return <div>Loading</div>;
-    if(storeItem.hasError) return <div>Error: {storeItem.error.message}</div>;
-    if(!storeItem.hasData) return <div>Not found</div>;
-    return children();
-});
+// render a user, it'll go get the required data
 
 const UserView = observer(props => {
-    const {userStore} = useStore();
     const [user, userFromStore] = userStore.useGet(props.userId).tuple();
 
     return <Loader storeItem={userFromStore}>
@@ -79,8 +92,9 @@ const UserView = observer(props => {
     </Loader>;
 });
 
+// render some pets, they'll go get the required data
+
 const PetView = observer(props => {
-    const {petStore} = useStore();
     const [pet, petFromStore] = petStore.useGet(props.petId).tuple();
 
     return <Loader storeItem={petFromStore}>
@@ -89,4 +103,22 @@ const PetView = observer(props => {
         </div>}
     </Loader>;
 });
+
+// handle request state as you like
+// for example, a component using render props
+
+const Loader = observer(props => {
+    let {storeItem, children} = props;
+    if(storeItem.loading) return <div>Loading</div>;
+    if(storeItem.hasError) return <div>Error: {storeItem.error.message}</div>;
+    if(!storeItem.hasData) return null;
+    return children();
+});
 ```
+
+## Development
+
+This library is written and maintained by [Damien Clarke](https://damienclarke.me/), with feedback from others at [92green](https://github.com/92green). It was built to meet the data-requesting and caching needs of products at [Blueflag](https://blueflag.com.au/).
+All online library discussion happens over on [Github](https://github.com/92green/mobx-fog-of-war).
+
+I hope this library helps solve some data requesting problems for you. 🎉

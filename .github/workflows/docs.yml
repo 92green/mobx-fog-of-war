@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - master
+      - feature/docosaurus
 jobs:
   build-and-deploy-docs:
     runs-on: ubuntu-latest
@@ -17,4 +18,4 @@ jobs:
       uses: peaceiris/actions-gh-pages@v3
       with:
         deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
-        publish_dir: ./packages/mobx-fog-of-war-docs/out
+        publish_dir: ./packages/mobx-fog-of-war-website/build/mobx-fog-of-war
