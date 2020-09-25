@@ -7,7 +7,7 @@
 
 A simple, lazy front-end request coordinator and cache for [React](https://reactjs.org/) and [mobx](https://mobx.js.org/). Load your data by simply trying to view it, and build up a picture of your server's data over time.
 
-### [Look here for documentaion, examples and more](https://92green.github.io/mobx-fog-of-war/)
+### [Look here for documentation and examples](https://92green.github.io/mobx-fog-of-war/)
 
 You're not required to think about "requesting" data in advance. Just try to access it using [store.get()](store.md#storeget) or the [store.useGet()](store.md#storeuseget) React hook, and if the corresponding data in your cache is missing or stale it'll prompt your request function to go and load the data. This makes it easy to do your data joins on the front-end, right in your components, keeping your data-joining-logic as minimal as possible.
 
