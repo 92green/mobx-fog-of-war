@@ -1,0 +1,367 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Stores · mobx-fog-of-war ☁️ ⚔️ 🤯</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="Stores are used to request and cache data. Each store contains a collection of items of the same type, where each item is referred to by a particular set of `args`."/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Stores · mobx-fog-of-war ☁️ ⚔️ 🤯"/><meta property="og:type" content="website"/><meta property="og:url" content="https://92green.github.io/mobx-fog-of-war/"/><meta property="og:description" content="Stores are used to request and cache data. Each store contains a collection of items of the same type, where each item is referred to by a particular set of `args`."/><meta property="og:image" content="https://92green.github.io/mobx-fog-of-war/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://92green.github.io/mobx-fog-of-war/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/mobx-fog-of-war/undefined"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Mono"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script src="/mobx-fog-of-war/js/scrollSpy.js"></script><link rel="stylesheet" href="/mobx-fog-of-war/css/main.css"/><script src="/mobx-fog-of-war/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/mobx-fog-of-war/"><h2 class="headerTitle">mobx-fog-of-war ☁️ ⚔️ 🤯</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="https://github.com/92green/mobx-fog-of-war" target="_blank">GitHub</a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><div class="hamburger-menu"><div class="line1"></div><div class="line2"></div><div class="line3"></div></div></div><h2><i>›</i><span>Documentation</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle">Documentation</h3><ul class=""><li class="navListItem"><a class="navItem" href="/mobx-fog-of-war/docs/intro">Introduction</a></li><li class="navListItem navListItemActive"><a class="navItem" href="/mobx-fog-of-war/docs/store">Stores</a></li><li class="navListItem"><a class="navItem" href="/mobx-fog-of-war/docs/react">Usage with React</a></li><li class="navListItem"><a class="navItem" href="/mobx-fog-of-war/docs/rxjs">Usage with RxJS</a></li></ul></div></div></section></div><script>
+            var coll = document.getElementsByClassName('collapsible');
+            var checkActiveCategory = true;
+            for (var i = 0; i < coll.length; i++) {
+              var links = coll[i].nextElementSibling.getElementsByTagName('*');
+              if (checkActiveCategory){
+                for (var j = 0; j < links.length; j++) {
+                  if (links[j].classList.contains('navListItemActive')){
+                    coll[i].nextElementSibling.classList.toggle('hide');
+                    coll[i].childNodes[1].classList.toggle('rotate');
+                    checkActiveCategory = false;
+                    break;
+                  }
+                }
+              }
+
+              coll[i].addEventListener('click', function() {
+                var arrow = this.childNodes[1];
+                arrow.classList.toggle('rotate');
+                var content = this.nextElementSibling;
+                content.classList.toggle('hide');
+              });
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+              createToggler('#navToggler', '#docsNav', 'docsSliderActive');
+              createToggler('#tocToggler', 'body', 'tocActive');
+
+              var headings = document.querySelector('.toc-headings');
+              headings && headings.addEventListener('click', function(event) {
+                var el = event.target;
+                while(el !== headings){
+                  if (el.tagName === 'A') {
+                    document.body.classList.remove('tocActive');
+                    break;
+                  } else{
+                    el = el.parentNode;
+                  }
+                }
+              }, false);
+
+              function createToggler(togglerSelector, targetSelector, className) {
+                var toggler = document.querySelector(togglerSelector);
+                var target = document.querySelector(targetSelector);
+
+                if (!toggler) {
+                  return;
+                }
+
+                toggler.onclick = function(event) {
+                  event.preventDefault();
+
+                  target.classList.toggle(className);
+                };
+              }
+            });
+        </script></nav></div><div class="container mainContainer docsContainer"><div class="wrapper"><div class="post"><header class="postHeader"><h1 id="__docusaurus" class="postHeaderTitle">Stores</h1></header><article><div><span><p>Stores are used to request and cache data. Each store contains a collection of items of the same type, where each item is referred to by a particular set of <code>args</code>.</p>
+<p>Some examples:</p>
+<ul>
+<li><p>A <code>userStore</code> may contain several <code>User</code> objects, each referred to by their <code>id</code> string</p></li>
+<li><p>A <code>postOfficeStore</code> may contain several <code>PostOffice</code> class instances, each referred to by their <code>postcode</code> string</p></li>
+<li><p>A <code>petListStore</code> may contain several <code>Pet[]</code> arrays, each referred to by their owner's <code>id</code> string</p></li>
+<li><p>A <code>userListStore</code> may contain several <code>User[]</code> arrays, each referred to by a search parameters object <code>{keyword: string, sort: string}</code></p></li>
+</ul>
+<pre><code class="hljs css language-typescript"><span class="hljs-keyword">import</span> {Store} <span class="hljs-keyword">from</span> <span class="hljs-string">'mobx-fog-of-war'</span>;
+
+<span class="hljs-keyword">const</span> userStore = <span class="hljs-keyword">new</span> Store&lt;<span class="hljs-built_in">string</span>,User,<span class="hljs-built_in">Error</span>&gt;({
+    name: <span class="hljs-string">'User Store'</span>,
+    staleTime: <span class="hljs-number">30</span> <span class="hljs-comment">// after 30 seconds, the item is eligible to be requested again</span>
+    request: <span class="hljs-comment">// ...fetchUser</span>
+});
+
+<span class="hljs-keyword">const</span> postOfficeStore = <span class="hljs-keyword">new</span> Store&lt;<span class="hljs-built_in">string</span>,PostOffice,<span class="hljs-built_in">Error</span>&gt;({
+    name: <span class="hljs-string">'Post Office Store'</span>,
+    request: <span class="hljs-comment">// ...fetchPostOffice</span>
+});
+
+<span class="hljs-keyword">const</span> petListStore = <span class="hljs-keyword">new</span> Store&lt;<span class="hljs-built_in">string</span>,Pet[],<span class="hljs-built_in">Error</span>&gt;({
+    name: <span class="hljs-string">'Pet List Store'</span>,
+    request: <span class="hljs-comment">// ...fetchPetList</span>
+});
+
+<span class="hljs-keyword">const</span> userListStore = <span class="hljs-keyword">new</span> Store&lt;SearchParams,User[],<span class="hljs-built_in">Error</span>&gt;({
+    name: <span class="hljs-string">'User List Store'</span>,
+    request: <span class="hljs-comment">// ...fetchUserList</span>
+});
+</code></pre>
+<h2><a class="anchor" aria-hidden="true" id="getting-data"></a><a href="#getting-data" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Getting data</h2>
+<p>You use a store by calling methods to access its contents, and the store will handle whether the data needs to be requested from somewhere like a server, or simply returned from the cache. Items cached in the store can be configured to become stale after a period of time, and if an stale item is retrieved from the store, then it should be requested from the server again.</p>
+<p>Methods to use include <a href="#storeget">get()</a>, <a href="#storeread">read()</a>, <a href="#storerequest">request()</a>, and the React hooks <a href="#storeuseget">useGet()</a> and <a href="#storeusebatchget">useBatchGet()</a>.</p>
+<h2><a class="anchor" aria-hidden="true" id="requests"></a><a href="#requests" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Requests</h2>
+<p>When a store needs to return data that it doesn't have yet, it makes a request. You can pass request functions into each store when you instantiate them. It's common for these requests to make XHR requests to a server.</p>
+<h3><a class="anchor" aria-hidden="true" id="asyncrequest"></a><a href="#asyncrequest" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>asyncRequest</h3>
+<p>The <code>asyncRequest</code> helper lets you return a promise with data.</p>
+<pre><code class="hljs css language-typescript"><span class="hljs-keyword">import</span> {Store, asyncRequest} <span class="hljs-keyword">from</span> <span class="hljs-string">'mobx-fog-of-war'</span>;
+
+<span class="hljs-keyword">type</span> ID = <span class="hljs-built_in">string</span>;
+
+<span class="hljs-keyword">const</span> userStore = <span class="hljs-keyword">new</span> Store&lt;ID,User,<span class="hljs-built_in">Error</span>&gt;({
+    name: <span class="hljs-string">'User Store'</span>,
+    request: asyncRequest(<span class="hljs-keyword">async</span> (id: ID): <span class="hljs-function"><span class="hljs-params">User</span> =&gt;</span> {
+        <span class="hljs-keyword">const</span> response = <span class="hljs-keyword">await</span> fetch(<span class="hljs-string">`http://example.com/user/<span class="hljs-subst">${id}</span>`</span>)
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> User(<span class="hljs-keyword">await</span> response.json());
+    })
+});
+</code></pre>
+<p>When a request is fired, the corresponding <code>StoreItem</code> has the following attributes set:</p>
+<ul>
+<li><code>loading: true</code></li>
+</ul>
+<p>If the promise is resolved, the corresponding <code>StoreItem</code> has the following attributes set:</p>
+<ul>
+<li><code>loading: false</code></li>
+<li><code>data: value in the promise</code></li>
+<li><code>hasData: true</code></li>
+<li><code>error: undefined</code></li>
+<li><code>hasError: false</code></li>
+</ul>
+<p>If the promise is rejected, the corresponding <code>StoreItem</code> has the following attributes set:</p>
+<ul>
+<li><code>loading: false</code></li>
+<li><code>error: value in the promise</code></li>
+<li><code>hasError: true</code></li>
+</ul>
+<p>Please keep in mind that <strong>asyncRequest has limitations</strong>. It fires once for each piece of data that you need. This is fine if you don't need to make many requests, but <code>mobx-fog-of-war</code> is designed to let your components ask for data whenever they need it. If you happen to render a large number of components then you can easily end up with a large number of <code>asyncRequest</code> calls, all in a short burst. To combat this we need buffering and batching.</p>
+<h3><a class="anchor" aria-hidden="true" id="rxrequest"></a><a href="#rxrequest" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>rxRequest</h3>
+<p>To be used with <a href="https://rxjs-dev.firebaseapp.com/">RxJS</a>, the <code>rxRequest</code> function lets you turn the series of requests fired by a store into an Rx observable, after which buffering and batching is easy to do with <code>rxBatch</code>. With this setup you can the most out of <code>mobx-fog-of-war</code>'s design - when items can be requested in batches, then your data will fall into place incrementally as each batch of items is returned.</p>
+<p>Read more about <a href="/mobx-fog-of-war/docs/rxjs">rxRequest and rxBatch</a>.</p>
+<p>If you would like buffering and batching but <em>don't</em> want to use RxJS, <a href="https://github.com/92green/mobx-fog-of-war/issues/11">drop a comment in this issue</a>.</p>
+<h2><a class="anchor" aria-hidden="true" id="setting-data"></a><a href="#setting-data" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Setting data</h2>
+<p>Usually most setting will be done by your request functions, but you can also set items directly if you need to.</p>
+<p>Methods to use include <a href="#storereceive">receive()</a>, <a href="#storesetloading">setLoading()</a>, <a href="#storesetdata">setData()</a> and <a href="#storeseterror">setError()</a>.</p>
+<hr>
+<h2><a class="anchor" aria-hidden="true" id="sending-mutations-to-the-server-saving"></a><a href="#sending-mutations-to-the-server-saving" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Sending mutations to the server (saving)</h2>
+<p>So far we've only spoken about loading data from server to client. While that may be a more common action to want to perform on a client, sending data to the server is obviously important too.</p>
+<p>Here you can choose if you want to use a <code>mobx-fog-of-war</code> store, or if you just call your request function directly. The data returned from saving is often of much less long-term importance compared to loading so you may find it unnecessary to want to store that for later. However there are a few advantages to using a <code>mobx-fog-of-war</code> store for sending mutations:</p>
+<ul>
+<li>Using a store means you can subscribe to the changes in the request state of the returned <code>StoreItem</code>, which is especially useful if you're want your UI to react to those changes using Mobx, React etc.</li>
+<li>Your app's code has a consistent pattern for interacting with requests, regardless of whether it is loading or saving.</li>
+</ul>
+<p>When using a store, there is nothing special about sending mutations or &quot;saving&quot; data. On your new store, <code>args</code> would be the data you want to send, and the <code>data</code> in the store can be whatever you want to keep from the response of the mutation. The <code>data</code> does not have to be the same type as <code>args</code>, and it could simply be <code>null</code> if the mutation doesn't return anything of use to the client.</p>
+<p>For example you may have a store for creating users.</p>
+<pre><code class="hljs css language-typescript"><span class="hljs-keyword">const</span> userCreateStore = <span class="hljs-keyword">new</span> Store&lt;User,<span class="hljs-literal">null</span>,<span class="hljs-built_in">Error</span>&gt;({
+    name: <span class="hljs-string">'User Create Store'</span>,
+    request: asyncRequest(<span class="hljs-keyword">async</span> (user: User): <span class="hljs-function"><span class="hljs-params">null</span> =&gt;</span> {
+        <span class="hljs-keyword">await</span> fetch(<span class="hljs-string">`http://example.com/user/create`</span>, {
+            method: <span class="hljs-string">'POST'</span>,
+            body: <span class="hljs-built_in">JSON</span>.stringify(user));
+        });
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;
+    }
+});
+</code></pre>
+<p>You could then create a user by calling <code>request</code> on the store.</p>
+<pre><code class="hljs css language-typescript"><span class="hljs-keyword">let</span> user = <span class="hljs-keyword">new</span> User(<span class="hljs-string">'new guy'</span>);
+<span class="hljs-keyword">const</span> userCreateFromStore = <span class="hljs-keyword">await</span> userCreateStore.request(user).promise();
+
+<span class="hljs-keyword">if</span>(userCreateFromStore.hasError) {
+    <span class="hljs-built_in">console</span>.error(<span class="hljs-string">`Error:`</span>, userCreateFromStore.error.message);
+} <span class="hljs-keyword">else</span> {
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`Success`</span>);
+}
+</code></pre>
+<p>Also see how to <a href="/mobx-fog-of-war/docs/react#saving-an-item">send mutations with React</a>.</p>
+<hr>
+<h2><a class="anchor" aria-hidden="true" id="api"></a><a href="#api" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>API</h2>
+<h3><a class="anchor" aria-hidden="true" id="new-store"></a><a href="#new-store" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>new Store()</h3>
+<pre><code class="hljs css language-typescript"><span class="hljs-keyword">const</span> store = <span class="hljs-keyword">new</span> Store&lt;A,D,E,AA&gt;({
+    name?: <span class="hljs-built_in">string</span>;
+    request?: <span class="hljs-function">(<span class="hljs-params">store: Store&lt;A,D,E,AA&gt;</span>) =&gt;</span> <span class="hljs-built_in">void</span>;
+    staleTime?: <span class="hljs-built_in">number</span>;
+    log?: <span class="hljs-function">(<span class="hljs-params">...args: <span class="hljs-built_in">any</span>[]</span>) =&gt;</span> <span class="hljs-built_in">void</span>;
+});
+</code></pre>
+<h4><a class="anchor" aria-hidden="true" id="name"></a><a href="#name" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>name</h4>
+<p>A name for the store. Mainly for developer reference, but also used by <a href="#log">log()</a>. Defaults to <code>'unnamed'</code>.</p>
+<h4><a class="anchor" aria-hidden="true" id="request"></a><a href="#request" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>request</h4>
+<p>A request function, such as <a href="#asyncrequest">asyncRequest</a>. Defaults to a no-op.</p>
+<h4><a class="anchor" aria-hidden="true" id="staletime"></a><a href="#staletime" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>staleTime</h4>
+<p>Determines the default duration for how long an item should be held in cache before it's eligible to be requested again.</p>
+<ul>
+<li><code>staleTime: 30</code> - after 30 seconds, the item is eligible to be requested again</li>
+<li><code>staleTime: 0</code> - the item should always be requested fresh</li>
+<li><code>staleTime: -1</code> - the item should never be requested again</li>
+</ul>
+<h4><a class="anchor" aria-hidden="true" id="log"></a><a href="#log" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>log</h4>
+<p>A logging function for debugging.</p>
+<pre><code class="hljs css language-typescript"><span class="hljs-keyword">const</span> userStore = <span class="hljs-keyword">new</span> Store({
+    name: <span class="hljs-string">'User Store'</span>,
+    request: <span class="hljs-comment">// ...</span>
+    log: <span class="hljs-built_in">console</span>.log <span class="hljs-comment">// example logger</span>
+});
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="store-types"></a><a href="#store-types" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Store Types</h3>
+<pre><code class="hljs css language-typescript"><span class="hljs-keyword">const</span> store = <span class="hljs-keyword">new</span> Store&lt;A,D,E,AA&gt;();
+</code></pre>
+<h4><a class="anchor" aria-hidden="true" id="a-args"></a><a href="#a-args" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>A: Args</h4>
+<p>Args can be of any <code>JSON.stringify</code>-able data type. It cannot be <code>undefined</code>.</p>
+<p>Args are <code>JSON.stringify</code>-ed and used as keys to refer to each item in the store.</p>
+<h4><a class="anchor" aria-hidden="true" id="d-data"></a><a href="#d-data" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>D: Data</h4>
+<p>Data can be any data type other than <code>undefined</code>.</p>
+<p>When choosing your data type, choose a type that you'll want to use throughout your app. Sometimes the data returned from the server needs some processing or needs to be turned into class instances, such as the <code>User</code> class in some of the examples on this page; in these cases your <code>request</code> function should prepare your data so that <code>User</code> instances are collected in the store, as seen in the <a href="#asyncrequest">asyncRequest example</a>.</p>
+<h4><a class="anchor" aria-hidden="true" id="e-error"></a><a href="#e-error" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>E: Error</h4>
+<p>Error can be of any type other than <code>undefined</code>.</p>
+<p>This is the data shape you want your errors to be.</p>
+<h4><a class="anchor" aria-hidden="true" id="aa-alias"></a><a href="#aa-alias" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>AA: Alias</h4>
+<p>Aliases let you easily refer to specific items by an alternative identifier other than <code>args</code>. A single alias may refer to different items over time, but only ever one at a time. Defaults to <code>string</code>.</p>
+<h3><a class="anchor" aria-hidden="true" id="storeget"></a><a href="#storeget" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>store.get()</h3>
+<pre><code class="hljs css language-typescript"><span class="hljs-comment">// signature</span>
+store.get(args: A?, options?: {}) =&gt; StoreItem
+
+<span class="hljs-comment">// usage</span>
+<span class="hljs-keyword">const</span> userFromStore = userStore.get(<span class="hljs-string">'a'</span>);
+<span class="hljs-keyword">const</span> user = userFromStore.data;
+</code></pre>
+<p>The <code>get()</code> method returns a <code>StoreItem</code>. If there is no item corresponding to <code>args</code> or if the item is stale, the <code>get()</code> method will request the data.</p>
+<p>All attributes on a <code>StoreItem</code> are <a href="https://mobx.js.org/refguide/observable.html">mobx observables</a>, so mobx can trigger downstream updates once new data arrives.</p>
+<pre><code class="hljs css language-typescript"><span class="hljs-keyword">const</span> userFromStore = <span class="hljs-keyword">await</span> userStore.get(<span class="hljs-string">'a'</span>); 
+
+autorun(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'User A name changed:'</span>, userFromStore.name);
+});
+</code></pre>
+<p>You can also turn the <code>StoreItem</code> into a <code>Promise</code> and await the result. Note that the promise never rejects - even if the request encounters an error, the promise always resolves.</p>
+<pre><code class="hljs css language-typescript"><span class="hljs-keyword">const</span> userFromStore = <span class="hljs-keyword">await</span> userStore.get(<span class="hljs-string">'a'</span>).promise();
+</code></pre>
+<p>You can also turn the <code>StoreItem</code> into a tuple to access and name <code>StoreItem</code>'s data with a one-liner.</p>
+<pre><code class="hljs css language-typescript"><span class="hljs-keyword">const</span> [user, userFromStore] = <span class="hljs-keyword">await</span> userStore.get(<span class="hljs-string">'a'</span>).tuple();
+</code></pre>
+<ul>
+<li>A <code>StoreItem</code> is always returned, even if no request has been made and no data exists yet. If no item matches the alias, then a blank <code>StoreItem</code> is returned.</li>
+<li>If <code>undefined</code> is passed as the first argument, no request will take place.</li>
+<li>The optional <code>options</code> object can contain <code>staleTime: number</code> to use a different stale time than the Store's default time. For example <code>{staleTime: 0}</code> can be used to always force a new request.</li>
+<li>The optional <code>options</code> object can contain <code>alias: AA</code>. This creates an alias for the current <code>args</code> that can be looked up via <a href="#storereadalias">readAlias()</a></li>
+</ul>
+<p>If you are using React, you should consider using the <a href="#storeuseget">store.useGet()</a> hook.</p>
+<h3><a class="anchor" aria-hidden="true" id="storeread"></a><a href="#storeread" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>store.read()</h3>
+<pre><code class="hljs css language-typescript"><span class="hljs-comment">// signature</span>
+store.read(args: A?) =&gt; StoreItem
+
+<span class="hljs-comment">// usage</span>
+<span class="hljs-keyword">const</span> userFromStore = userStore.read(<span class="hljs-string">'a'</span>);
+</code></pre>
+<p>The <code>read()</code> method returns a <code>StoreItem</code>. It is similar to <a href="#storeget">get()</a>, except it will only return data from cache and never fire a request.</p>
+<h3><a class="anchor" aria-hidden="true" id="storereadalias"></a><a href="#storereadalias" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>store.readAlias()</h3>
+<pre><code class="hljs css language-typescript"><span class="hljs-comment">// signature</span>
+store.readAlias(alias: AA) =&gt; StoreItem
+
+<span class="hljs-comment">// usage</span>
+<span class="hljs-keyword">const</span> userFromStore = userStore.readAlias(<span class="hljs-string">'alias'</span>);
+</code></pre>
+<p>Aliases let you easily refer to specific items by an alternative identifier other than <code>args</code>. A single alias may refer to different items over time, but only ever one at a time. The <code>readAlias()</code> method returns the <code>StoreItem</code> associated with the alias provided. If no item matches the alias, then a blank <code>StoreItem</code> is returned. It is similar to <a href="#storeread">read()</a>.</p>
+<h3><a class="anchor" aria-hidden="true" id="storerequest"></a><a href="#storerequest" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>store.request()</h3>
+<pre><code class="hljs css language-typescript"><span class="hljs-comment">// signature</span>
+store.request(args: A?, options?: {}) =&gt; StoreItem
+
+<span class="hljs-comment">// usage</span>
+<span class="hljs-keyword">const</span> userFromStore = store.request(<span class="hljs-string">'a'</span>);
+</code></pre>
+<p>The <code>request()</code> method always immediately requests the data.</p>
+<ul>
+<li>It immediately sets the corresponding <code>StoreItem</code> to <code>loading: true</code>.</li>
+<li>The optional <code>options</code> object can contain <code>alias: AA</code>. This creates an alias for the current <code>args</code> that can be looked up via <a href="#storereadalias">readAlias()</a></li>
+</ul>
+<h3><a class="anchor" aria-hidden="true" id="storeuseget"></a><a href="#storeuseget" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>store.useGet()</h3>
+<pre><code class="hljs css language-typescript"><span class="hljs-comment">// signature</span>
+store.useGet(args: A?, options?: {}) =&gt; StoreItem
+
+<span class="hljs-comment">// usage</span>
+<span class="hljs-keyword">const</span> MyComponent = <span class="hljs-function">(<span class="hljs-params">props</span>) =&gt;</span> {
+    <span class="hljs-keyword">const</span> userFromStore = userStore.useGet(props.id);
+};
+</code></pre>
+<p>The <code>useGet()</code> method is a React hook very similar to <a href="#storeget">get()</a>, except it uses a <code>useEffect</code> hook internally to make sure that side-effects are not fired during React's render phase.</p>
+<ul>
+<li>If <code>undefined</code> is passed as the first argument, no request will take place.</li>
+<li>The optional <code>options</code> object can contain <code>staleTime: number</code> to use a different stale time than the Store's default time. For example <code>{staleTime: 0}</code> can be used to always force a new request.</li>
+<li>The optional <code>options</code> object can contain <code>alias: AA</code>. This creates an alias for the current <code>args</code> that can be looked up via <a href="#storereadalias">readAlias()</a></li>
+<li>The optional <code>options</code> object can contain <code>dependencies: any[]</code> which are passed to the internal <code>useEffect</code> hook. If any dependencies change, <code>get()</code> will be called again with the current <code>args</code>.</li>
+</ul>
+<h3><a class="anchor" aria-hidden="true" id="storeusebatchget"></a><a href="#storeusebatchget" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>store.useBatchGet()</h3>
+<pre><code class="hljs css language-typescript"><span class="hljs-comment">// signature</span>
+store.useBatchGet(argsArray: A[]?, options?: {}) =&gt; StoreItem[]
+
+<span class="hljs-comment">// usage</span>
+<span class="hljs-keyword">const</span> MyComponent = <span class="hljs-function">(<span class="hljs-params">props</span>) =&gt;</span> {
+    <span class="hljs-keyword">const</span> usersFromStore = userStore.useBatchGet(props.idArray);
+};
+</code></pre>
+<p>The <code>useBatchGet()</code> method is a React hook very similar to <a href="#storeuseget">useGet()</a>, except it allows you to get an arbitrary and variable amount of items.</p>
+<ul>
+<li>If <code>undefined</code> is passed as the first argument, no request will take place.</li>
+<li>The optional <code>options</code> object can contain <code>staleTime: number</code> to use a different stale time than the Store's default time. For example <code>{staleTime: 0}</code> can be used to always force a new request.</li>
+<li>The optional <code>options</code> object can contain <code>alias: AA</code>. This creates an alias for the current <code>args</code> that can be looked up via <a href="#storereadalias">readAlias()</a></li>
+<li>The optional <code>options</code> object can contain <code>dependencies: any[]</code> which are passed to the internal <code>useEffect</code> hook. If any dependencies change, <code>get()</code> will be called again with the current <code>args</code>.</li>
+</ul>
+<h3><a class="anchor" aria-hidden="true" id="storesetloading"></a><a href="#storesetloading" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>store.setLoading()</h3>
+<pre><code class="hljs css language-typescript"><span class="hljs-comment">// signature</span>
+store.setLoading(args: A, loading: <span class="hljs-built_in">boolean</span>) =&gt; <span class="hljs-built_in">void</span>
+
+<span class="hljs-comment">// usage</span>
+store.setLoading(<span class="hljs-string">'a'</span>, <span class="hljs-literal">true</span>);
+</code></pre>
+<p>Sets the <code>loading</code> status of the <code>StoreItem</code> corresponding to <code>args</code>.</p>
+<p>You'll very rarely need to call this directly if you are using premade request functions like <a href="#asyncrequest">asyncRequest()</a>.</p>
+<h3><a class="anchor" aria-hidden="true" id="storesetdata"></a><a href="#storesetdata" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>store.setData()</h3>
+<pre><code class="hljs css language-typescript"><span class="hljs-comment">// signature</span>
+store.setData(args: A, data?: D) =&gt; <span class="hljs-built_in">void</span>
+
+<span class="hljs-comment">// usage</span>
+store.setData(<span class="hljs-string">'a'</span>, <span class="hljs-keyword">new</span> User());
+</code></pre>
+<p>Sets the <code>data</code> of the <code>StoreItem</code> corresponding to <code>args</code>.</p>
+<p>When called, the corresponding <code>StoreItem</code> has the following attributes set:</p>
+<ul>
+<li><code>loading: false</code></li>
+<li><code>data: data</code></li>
+<li><code>hasData: true</code></li>
+<li><code>error: undefined</code></li>
+<li><code>hasError: false</code></li>
+</ul>
+<p>You'll very rarely need to call this directly if you are using premade request functions like <a href="#asyncrequest">asyncRequest()</a>.</p>
+<ul>
+<li>If <code>data</code> is <code>undefined</code>, the <code>StoreItem</code> is removed.</li>
+</ul>
+<h3><a class="anchor" aria-hidden="true" id="storeseterror"></a><a href="#storeseterror" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>store.setError()</h3>
+<pre><code class="hljs css language-typescript"><span class="hljs-comment">// signature</span>
+store.setError(args: A, error: E) =&gt; <span class="hljs-built_in">void</span>
+
+<span class="hljs-comment">// usage</span>
+store.setError(<span class="hljs-string">'a'</span>, <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>());
+</code></pre>
+<p>Sets the <code>error</code> of the <code>StoreItem</code> corresponding to <code>args</code>.</p>
+<p>If the promise is rejected, the corresponding <code>StoreItem</code> has the following attributes set:</p>
+<ul>
+<li><code>loading: false</code></li>
+<li><code>error: error</code></li>
+<li><code>hasError: true</code></li>
+</ul>
+<p>You'll very rarely need to call this directly if you are using premade request functions like <a href="#asyncrequest">asyncRequest()</a>.</p>
+<h3><a class="anchor" aria-hidden="true" id="storereceive"></a><a href="#storereceive" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>store.receive()</h3>
+<pre><code class="hljs css language-typescript"><span class="hljs-comment">// signature</span>
+store.receive(receive: {args: A, data: D?}|{args: A, error: E}) =&gt; <span class="hljs-built_in">void</span>
+
+<span class="hljs-comment">// usage</span>
+store.receive({args: <span class="hljs-string">'a'</span>, data: <span class="hljs-keyword">new</span> User()});
+store.receive({args: <span class="hljs-string">'a'</span>, error: <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>()});
+</code></pre>
+<p>A short way of calling <a href="#storesetdata">setData</a> or <a href="#storeseterror">setError</a>.</p>
+<p>You'll very rarely need to call this directly if you are using premade request functions like <a href="#asyncrequest">asyncRequest()</a>.</p>
+<h3><a class="anchor" aria-hidden="true" id="storeremove"></a><a href="#storeremove" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>store.remove()</h3>
+<pre><code class="hljs css language-typescript"><span class="hljs-comment">// signature</span>
+store.remove(args: A) =&gt; <span class="hljs-built_in">void</span>
+
+<span class="hljs-comment">// usage</span>
+store.remove(<span class="hljs-string">'a'</span>);
+</code></pre>
+<p>Removes the <code>StoreItem</code> corresponding to <code>args</code> if it exists.</p>
+<h3><a class="anchor" aria-hidden="true" id="storeremovebyalias"></a><a href="#storeremovebyalias" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>store.removeByAlias()</h3>
+<pre><code class="hljs css language-typescript"><span class="hljs-comment">// signature</span>
+store.removeByAlias(alias: AA) =&gt; <span class="hljs-built_in">void</span>
+
+<span class="hljs-comment">// usage</span>
+store.removeByAlias(<span class="hljs-string">'alias'</span>);
+</code></pre>
+<p>Removes the <code>StoreItem</code> corresponding to <code>alias</code> if it exists.</p>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/mobx-fog-of-war/docs/intro"><span class="arrow-prev">← </span><span>Introduction</span></a><a class="docs-next button" href="/mobx-fog-of-war/docs/react"><span>Usage with React</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#getting-data">Getting data</a></li><li><a href="#requests">Requests</a><ul class="toc-headings"><li><a href="#asyncrequest">asyncRequest</a></li><li><a href="#rxrequest">rxRequest</a></li></ul></li><li><a href="#setting-data">Setting data</a></li><li><a href="#sending-mutations-to-the-server-saving">Sending mutations to the server (saving)</a></li><li><a href="#api">API</a><ul class="toc-headings"><li><a href="#new-store">new Store()</a></li><li><a href="#store-types">Store Types</a></li><li><a href="#storeget">store.get()</a></li><li><a href="#storeread">store.read()</a></li><li><a href="#storereadalias">store.readAlias()</a></li><li><a href="#storerequest">store.request()</a></li><li><a href="#storeuseget">store.useGet()</a></li><li><a href="#storeusebatchget">store.useBatchGet()</a></li><li><a href="#storesetloading">store.setLoading()</a></li><li><a href="#storesetdata">store.setData()</a></li><li><a href="#storeseterror">store.setError()</a></li><li><a href="#storereceive">store.receive()</a></li><li><a href="#storeremove">store.remove()</a></li><li><a href="#storeremovebyalias">store.removeByAlias()</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="copyright">Copyright © 2020 Damien Clarke - 92green</section></footer></div></body></html>
