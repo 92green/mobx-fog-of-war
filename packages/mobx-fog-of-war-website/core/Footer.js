@@ -18,7 +18,7 @@ class Footer extends React.Component {
   render() {
     return (
       <footer className="nav-footer" id="footer">
-        <section className="sitemap">
+        {/*<section className="sitemap">
           <a href={this.props.config.baseUrl} className="nav-home">
             {this.props.config.footerIcon && (
               <img
@@ -93,7 +93,7 @@ class Footer extends React.Component {
               </div>
             )}
           </div>
-        </section>
+        </section>*/}
 
         <section className="copyright">{this.props.config.copyright}</section>
       </footer>

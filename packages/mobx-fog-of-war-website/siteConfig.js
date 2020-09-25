@@ -38,12 +38,12 @@ const siteConfig = {
 
   // For no header links in the top nav bar -> headerLinks: [],
   headerLinks: [
-    {doc: 'doc1', label: 'Documentation'},
+    // {doc: 'doc1', label: 'Documentation'},
     { href: "https://github.com/92green/mobx-fog-of-war", label: "GitHub", external: true },
   ],
 
   // If you have users set above, you add it here:
-  users,
+  // users,
 
   /* path to images for header/footer */
   // headerIcon: 'img/favicon.ico',
@@ -52,7 +52,7 @@ const siteConfig = {
 
   /* Colors for website */
   colors: {
-    primaryColor: '#0e151b',
+    primaryColor: '#1599d4',
     secondaryColor: '#192644',
   },
 
@@ -77,10 +77,10 @@ const siteConfig = {
   // This copyright info is used in /core/Footer.js and blog RSS/Atom feeds.
   copyright: `Copyright © ${new Date().getFullYear()} Damien Clarke - 92green`,
 
-  highlight: {
-    // Highlight.js theme to use for syntax highlighting in code blocks.
-    theme: 'default',
-  },
+  // highlight: {
+  //   // Highlight.js theme to use for syntax highlighting in code blocks.
+  //   theme: 'default',
+  // },
 
   // Add custom scripts here that would be placed in <script> tags.
   scripts: ['https://buttons.github.io/buttons.js'],

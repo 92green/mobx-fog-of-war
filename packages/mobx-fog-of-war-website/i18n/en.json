@@ -5,31 +5,25 @@
     "previous": "Previous",
     "tagline": "A simple, lazy front-end request coordinator and cache for React and mobx. Load your data by simply trying to view it, and build up a picture of your server's data over time.",
     "docs": {
-      "doc1": {
-        "title": "Latin-ish",
-        "sidebar_label": "Example Page"
+      "intro": {
+        "title": "mobx-fog-of-war ☁️ ⚔️ 🤯",
+        "sidebar_label": "Introduction"
       },
-      "doc2": {
-        "title": "document number 2"
+      "react": {
+        "title": "Usage with React"
       },
-      "doc3": {
-        "title": "This is document number 3"
+      "rxjs": {
+        "title": "Usage with RxJS"
       },
-      "doc4": {
-        "title": "Other Document"
-      },
-      "doc5": {
-        "title": "Fifth Document"
+      "store": {
+        "title": "Stores"
       }
     },
     "links": {
-      "Documentation": "Documentation",
       "GitHub": "GitHub"
     },
     "categories": {
-      "Docusaurus": "Docusaurus",
-      "First Category": "First Category",
-      "Second Category": "Second Category"
+      "Documentation": "Documentation"
     }
   },
   "pages-strings": {

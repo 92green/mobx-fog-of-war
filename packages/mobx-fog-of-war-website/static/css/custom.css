@@ -13,14 +13,19 @@ html, body {
   -webkit-font-smoothing: antialiased;
 }
 
+hr {
+    margin: 3em 0;
+}
+
 .mainContainer h1,
 .mainContainer h2,
 .mainContainer h3,
 .mainContainer h4,
 .mainContainer h5 {
-    letter-spacing: -.02em;
+    letter-spacing: -.04em;
     font-family: $monoFont;
     font-weight: 700;
+    margin: 3em 0 1em;
 }
 
 .mainContainer h1 {
@@ -32,7 +37,17 @@ html, body {
 }
 
 .mainContainer h3 {
-    font-size: 22px;
+    font-size: 23px;
+}
+
+.mainContainer h1 + h2,
+.mainContainer h2 + h3,
+.mainContainer h3 + h4 {
+    margin-top: 2em;
+}
+
+.mainContainer .wrapper .post .postHeaderTitle {
+    margin-top: 1rem;
 }
 
 .fixedHeaderContainer header .headerTitle {
@@ -64,6 +79,10 @@ html, body {
     font-size: 0;
 }
 
+article p img {
+    display: inline;
+}
+
 @media only screen and (min-device-width: 360px) and (max-device-width: 736px) {
 }
 
@@ -79,4 +98,83 @@ html, body {
 @media only screen and (min-width: 1500px) {
 }
 
+.fixedHeaderContainer {
+    background: #0b2033;
+}
 
+.navigationSlider .slidingNav ul li > a:focus,
+.navigationSlider .slidingNav ul li > a:hover,
+.navigationSlider .slidingNav ul li.siteNavItemActive > a,
+.navigationSlider .slidingNav ul li.siteNavGroupActive > a {
+    background: none;
+}
+
+.hljs {
+  display: block;
+  overflow-x: auto;
+  background: #0b2033;
+  -webkit-font-smoothing: auto;
+  margin-bottom: 2rem;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-literal,
+.hljs-section,
+.hljs-link {
+  color: #e83827;
+}
+
+.hljs-function .hljs-keyword {
+  color: #FFFF00;
+}
+
+.hljs,
+.hljs-subst {
+  color: #FFFFFF;
+}
+
+.hljs-string,
+.hljs-number,
+.hljs-title,
+.hljs-name,
+.hljs-type,
+.hljs-attribute,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition,
+.hljs-variable,
+.hljs-template-tag,
+.hljs-template-variable {
+  color: #46bbef;
+}
+
+.hljs-comment,
+.hljs-quote,
+.hljs-deletion,
+.hljs-meta {
+  color: #9480a2;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-literal,
+.hljs-title,
+.hljs-section,
+.hljs-doctag,
+.hljs-type,
+.hljs-name,
+.hljs-strong {
+  font-weight: bold;
+}
+
+.hljs-emphasis {
+  font-style: italic;
+}
+
+.hljs-built_in,
+.hljs-bullet,
+.hljs-code,
+.hljs-addition {
+  color: #FFFFFF;
+}
