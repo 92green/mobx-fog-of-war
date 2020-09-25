@@ -1,4 +1,8 @@
-# mobx-fog-of-war ☁️ ⚔️ 🤯
+---
+id: intro
+title: mobx-fog-of-war ☁️ ⚔️ 🤯
+sidebar_label: Introduction
+---
 
 [![npm](https://img.shields.io/npm/v/mobx-fog-of-war.svg)](https://www.npmjs.com/package/mobx-fog-of-war) ![Master build](https://github.com/92green/mobx-fog-of-war/workflows/CI/badge.svg?branch=master) ![Coverage 100%](https://img.shields.io/badge/coverage-100%25-green) ![Size: <2KB](https://img.shields.io/badge/Size-<2KB-blue) ![Maturity: Early Days](https://img.shields.io/badge/Maturity-Early%20days-yellow) ![Coolness Moderate](https://img.shields.io/badge/Coolness-Moderate-blue) 
 
@@ -6,8 +10,6 @@
 
 
 A simple, lazy front-end request coordinator and cache for [React](https://reactjs.org/) and [mobx](https://mobx.js.org/). Load your data by simply trying to view it, and build up a picture of your server's data over time.
-
-### [Look here for documentaion, examples and more](https://92green.github.io/mobx-fog-of-war/)
 
 You're not required to think about "requesting" data in advance. Just try to access it using [store.get()](store.md#storeget) or the [store.useGet()](store.md#storeuseget) React hook, and if the corresponding data in your cache is missing or stale it'll prompt your request function to go and load the data. This makes it easy to do your data joins on the front-end, right in your components, keeping your data-joining-logic as minimal as possible.
 
@@ -116,9 +118,15 @@ const Loader = observer(props => {
 });
 ```
 
+- [Read more about Stores](store.md)
+- [Read more about how to use them with React](react.md)
+
+
 ## Development
 
 This library is written and maintained by [Damien Clarke](https://damienclarke.me/), with feedback from others at [92green](https://github.com/92green). It was built to meet the data-requesting and caching needs of products at [Blueflag](https://blueflag.com.au/).
 All online library discussion happens over on [Github](https://github.com/92green/mobx-fog-of-war).
 
 I hope this library helps solve some data requesting problems for you. 🎉
+
+
