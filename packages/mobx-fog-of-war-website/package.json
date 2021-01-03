@@ -1,4 +1,7 @@
 {
+  "name": "mobx-fog-of-war-website",
+  "version": "0.1.12",
+  "private": true,
   "scripts": {
     "examples": "docusaurus-examples",
     "start": "docusaurus-start",
