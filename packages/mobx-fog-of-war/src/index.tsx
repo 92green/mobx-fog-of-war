@@ -5,3 +5,4 @@ export * from './rxRequest';
 export * from './asyncRequest';
 export * from './sortByArgsArray';
 export * from './provideStores';
+export * from './Load';

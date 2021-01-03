@@ -108,6 +108,7 @@ const PetView = observer(props => {
 
 // handle request state as you like
 // for example, a component using render props
+// or use the in-built <Load> component
 
 const Loader = observer(props => {
     let {storeItem, children} = props;

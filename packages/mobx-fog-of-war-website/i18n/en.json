@@ -9,6 +9,9 @@
         "title": "mobx-fog-of-war ☁️ ⚔️ 🤯",
         "sidebar_label": "Introduction"
       },
+      "load": {
+        "title": "The Load component"
+      },
       "react": {
         "title": "Usage with React"
       },

@@ -31,7 +31,7 @@ Initially `userFromStore.data` will be `undefined` until the user data is loaded
 
 In the above example, if `props.userId` changes then the item corresponding to `props.userId`'s new value will be gotten.
 
-### An improvement - Loader Component
+### Improvement option #1 - DIY Loader component
 
 Create a component to handle your loading states, and reuse it around your app. An example might be something like this:
 
@@ -56,6 +56,34 @@ const Loader = observer(props => {
 });
 ```
 
+### Improvement option #2 - Use the in-built Load component
+
+The [generic Load component](/load) can understand the loading state multiple store items, and can also be easily customised to respond to different combinations of loading states.
+
+```jsx
+import {Load} from 'mobx-fog-of-war';
+
+// customise for your app
+
+// props.errors is an array of store items that have errors
+const LoaderError = (props) => <div>Error: {props.errors[0].message}</div>
+
+export const Loader = (props) => <Load
+    loading={<span>Loading</span>}
+    errorComponent={LoaderError}
+    {...props}
+/>;
+
+// usage
+const UserView = observer(props => {
+    const userFromStore = userStore.useGet(props.userId);
+
+    return <Load storeItems={[userFromStore]}>
+        {user => <div>User's name: {user.name}</div>}
+    </Load>;
+});
+```
+
 ## Loading a list of items
 
 Loading a list of items based on some search parameters can be done just the same as loading a single item. Remember that [each item in a store can be an array](store.md), they don't have to be treated in a special way.
@@ -73,11 +101,11 @@ const UserListView = observer(props => {
     return <div>
         <input value={keyword} onChange={changeKeyword} />
 
-        <Loader storeItem={userListFromStore}>
+        <Load storeItems={[userListFromStore]}>
             {userList => <div>
                 {userList.map(user => <div key={user.id}>{user.name}</div>)}
             </div>}
-        </Loader>
+        </Load>
     </div>;
 });
 ```
@@ -103,9 +131,9 @@ const UserView = observer(props => {
     const usersFromStore = userStore.useBatchGet(props.idArray);
 
     return usersFromStore.map((userFromStore, index) => {
-        return <Loader key={index} storeItem={userFromStore}>
-            {() => <div>User's name: {user.name}</div>}
-        </Loader>
+        return <Load key={index} storeItems={[userFromStore]}>
+            {user => <div>User's name: {user.name}</div>}
+        </Load>
     });
 });
 ```
@@ -115,8 +143,6 @@ const UserView = observer(props => {
 Sending mutations or "saving" can be quite a different to loading for a few reasons [discussed in greater detail here](store.md#sending-mutations-to-the-server-saving). When React is involved, another difference is that loading often happens as a result of components mounting or props changing, while saving often happens as a result of user interaction.
 
 If you want to be able to have your UI react to the status of the request, you should create a store to handle sending the request.
-
-Imagine we have this store:
 
 ```typescript
 const userCreateStore = new Store<User,null,Error>({
@@ -130,24 +156,6 @@ const userCreateStore = new Store<User,null,Error>({
     }
 });
 ```
-
-You could write a React component to use the store like this:
-
-```jsx
-const UserCreateView = observer(props => {
-
-    const createUser = useCallback(async () => {
-        let user = new User(`new guy ${Math.random()}`);
-        await userCreateStore.request(user).promise();
-    }, []);
-
-    return <div>
-        <button onClick={createUser}>Create random user</button>
-    </div>;
-});
-```
-
-But there is a drawback - if you want React to display the status of the request, you'd have to create some local state in the component and keep it in sync. Considering `mobx-fog-of-war` `StoreItem`s are already keeping that state for you, it makes sense to just use the `StoreItem`s. You could write this if you want React to react to the request state changes.
 
 ```jsx
 const UserCreateView = observer(props => {
