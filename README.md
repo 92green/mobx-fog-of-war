@@ -1,6 +1,6 @@
 # mobx-fog-of-war ☁️ ⚔️ 🤯
 
-[![npm](https://img.shields.io/npm/v/mobx-fog-of-war.svg)](https://www.npmjs.com/package/mobx-fog-of-war) ![Master build](https://github.com/92green/mobx-fog-of-war/workflows/CI/badge.svg?branch=master) ![Coverage 100%](https://img.shields.io/badge/coverage-100%25-green) ![Size: <2KB](https://img.shields.io/badge/Size-<2KB-blue) ![Maturity: Early Days](https://img.shields.io/badge/Maturity-Early%20days-yellow) ![Coolness Moderate](https://img.shields.io/badge/Coolness-Moderate-blue) 
+[![npm](https://img.shields.io/npm/v/mobx-fog-of-war.svg)](https://www.npmjs.com/package/mobx-fog-of-war) ![Master build](https://github.com/92green/mobx-fog-of-war/workflows/CI/badge.svg?branch=master) ![Coverage 100%](https://img.shields.io/badge/coverage-100%25-green) ![Size: <2.3KB](https://img.shields.io/badge/Size-<2.3KB-blue) ![Maturity: Early Days](https://img.shields.io/badge/Maturity-Early%20days-yellow) ![Coolness Moderate](https://img.shields.io/badge/Coolness-Moderate-blue) 
 
 ![aoe](https://user-images.githubusercontent.com/345320/91411571-ddf2da80-e88b-11ea-8de7-c0f3462991f4.gif)
 
@@ -32,7 +32,7 @@ npm install --save react mobx mobx-react mobx-fog-of-war
 
 ## Nice things
 
-- Small bundle: `Store` + `asyncRequest` < 1.4KB gzipped, entire library < 2KB gzipped
+- Small bundle: `Store` + `asyncRequest` < 1.4KB gzipped, entire library < 2.3KB gzipped
 - 100% [typescript typed](https://www.typescriptlang.org/)
 - 100% tested with [jest](https://jestjs.io/), [rx marble tests](https://rxjs-dev.firebaseapp.com/guide/testing/internal-marble-tests) and [enzyme](https://github.com/enzymejs/enzyme)
 - Efficient bundling with [rollup](https://rollupjs.org/guide/en/)
@@ -82,10 +82,10 @@ import {observer} from 'mobx-react';
 // render a user, it'll go get the required data
 
 const UserView = observer(props => {
-    const [user, userFromStore] = userStore.useGet(props.userId).tuple();
+    const userFromStore = userStore.useGet(props.userId);
 
     return <Loader storeItem={userFromStore}>
-        {() => user && <div>
+        {user => <div>
             Name: {user.name}
             Pets: {user.petIds.map(petId => <PetView key={petId} petId={petId} />)}
         </div>}
@@ -95,10 +95,10 @@ const UserView = observer(props => {
 // render some pets, they'll go get the required data
 
 const PetView = observer(props => {
-    const [pet, petFromStore] = petStore.useGet(props.petId).tuple();
+    const petFromStore = petStore.useGet(props.petId);
 
     return <Loader storeItem={petFromStore}>
-        {() => pet && <div>
+        {pet => <div>
             Pet name: {pet.name}
         </div>}
     </Loader>;
@@ -106,13 +106,14 @@ const PetView = observer(props => {
 
 // handle request state as you like
 // for example, a component using render props
+// or use the in-built <Load> component
 
 const Loader = observer(props => {
     let {storeItem, children} = props;
     if(storeItem.loading) return <div>Loading</div>;
     if(storeItem.hasError) return <div>Error: {storeItem.error.message}</div>;
     if(!storeItem.hasData) return null;
-    return children();
+    return children(storeItem.data);
 });
 ```
 

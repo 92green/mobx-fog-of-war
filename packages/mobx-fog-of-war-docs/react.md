@@ -31,17 +31,16 @@ Initially `userFromStore.data` will be `undefined` until the user data is loaded
 
 In the above example, if `props.userId` changes then the item corresponding to `props.userId`'s new value will be gotten.
 
-### Improvement 1 - Loader Component
+### Improvement option #1 - DIY Loader component
 
 Create a component to handle your loading states, and reuse it around your app. An example might be something like this:
 
 ```jsx
 const UserView = observer(props => {
     const userFromStore = userStore.useGet(props.userId);
-    const user = userFromStore.data;
 
     return <Loader storeItem={userFromStore}>
-        {() => <div>User's name: {user.name}</div>}
+        {user => <div>User's name: {user.name}</div>}
     </Loader>;
 });
 
@@ -53,21 +52,35 @@ const Loader = observer(props => {
     if(storeItem.loading) return <div>Loading</div>;
     if(storeItem.hasError) return <div>Error: {storeItem.error.message}</div>;
     if(!storeItem.hasData) return null;
-    return children();
+    return children(storeItem.data);
 });
 ```
 
-### Improvement 2 - StoreItem.tuple()
+### Improvement option #2 - Use the in-built Load component
 
-You'll often want to get `StoreItem.data` and assign it to a variable. Use `StoreItem.tuple()` to turn your data access into a one-liner:
+The [generic Load component](/load) can understand the loading state multiple store items, and can also be easily customised to respond to different combinations of loading states.
 
 ```jsx
-const UserView = observer(props => {
-    const [user, userFromStore] = userStore.useGet(props.userId).tuple();
+import {Load} from 'mobx-fog-of-war';
 
-    return <Loader storeItem={userFromStore}>
-        {() => <div>User's name: {user.name}</div>}
-    </Loader>;
+// customise for your app
+
+// props.errors is an array of store items that have errors
+const LoaderError = (props) => <div>Error: {props.errors[0].message}</div>
+
+export const Loader = (props) => <Load
+    loading={<span>Loading</span>}
+    errorComponent={LoaderError}
+    {...props}
+/>;
+
+// usage
+const UserView = observer(props => {
+    const userFromStore = userStore.useGet(props.userId);
+
+    return <Load storeItems={[userFromStore]}>
+        {user => <div>User's name: {user.name}</div>}
+    </Load>;
 });
 ```
 
@@ -83,16 +96,16 @@ const UserListView = observer(props => {
     const params = keyword !== '' ? {keyword} : undefined;
     // ^ pass undefined to useGet() to request no results
 
-    const [userList, userListFromStore] = userListStore.useGet(params).tuple();
+    const userListFromStore = userListStore.useGet(params);
 
     return <div>
         <input value={keyword} onChange={changeKeyword} />
 
-        <Loader storeItem={userListFromStore}>
-            {() => <div>
+        <Load storeItems={[userListFromStore]}>
+            {userList => <div>
                 {userList.map(user => <div key={user.id}>{user.name}</div>)}
             </div>}
-        </Loader>
+        </Load>
     </div>;
 });
 ```
@@ -118,9 +131,9 @@ const UserView = observer(props => {
     const usersFromStore = userStore.useBatchGet(props.idArray);
 
     return usersFromStore.map((userFromStore, index) => {
-        return <Loader key={index} storeItem={userFromStore}>
-            {() => <div>User's name: {user.name}</div>}
-        </Loader>
+        return <Load key={index} storeItems={[userFromStore]}>
+            {user => <div>User's name: {user.name}</div>}
+        </Load>
     });
 });
 ```
@@ -130,8 +143,6 @@ const UserView = observer(props => {
 Sending mutations or "saving" can be quite a different to loading for a few reasons [discussed in greater detail here](store.md#sending-mutations-to-the-server-saving). When React is involved, another difference is that loading often happens as a result of components mounting or props changing, while saving often happens as a result of user interaction.
 
 If you want to be able to have your UI react to the status of the request, you should create a store to handle sending the request.
-
-Imagine we have this store:
 
 ```typescript
 const userCreateStore = new Store<User,null,Error>({
@@ -145,24 +156,6 @@ const userCreateStore = new Store<User,null,Error>({
     }
 });
 ```
-
-You could write a React component to use the store like this:
-
-```jsx
-const UserCreateView = observer(props => {
-
-    const createUser = useCallback(async () => {
-        let user = new User(`new guy ${Math.random()}`);
-        await userCreateStore.request(user).promise();
-    }, []);
-
-    return <div>
-        <button onClick={createUser}>Create random user</button>
-    </div>;
-});
-```
-
-But there is a drawback - if you want React to display the status of the request, you'd have to create some local state in the component and keep it in sync. Considering `mobx-fog-of-war` `StoreItem`s are already keeping that state for you, it makes sense to just use the `StoreItem`s. You could write this if you want React to react to the request state changes.
 
 ```jsx
 const UserCreateView = observer(props => {
@@ -230,7 +223,7 @@ export const App = (props) => {
 
 const UserView = observer(props => {
     const {userStore} = useStores();
-    const [user, userFromStore] = userStore.useGet(props.userId).tuple();
+    const userFromStore = userStore.useGet(props.userId);
 
     // etc...
 });

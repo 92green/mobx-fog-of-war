@@ -84,10 +84,10 @@ import {observer} from 'mobx-react';
 // render a user, it'll go get the required data
 
 const UserView = observer(props => {
-    const [user, userFromStore] = userStore.useGet(props.userId).tuple();
+    const userFromStore = userStore.useGet(props.userId);
 
     return <Loader storeItem={userFromStore}>
-        {() => user && <div>
+        {user => <div>
             Name: {user.name}
             Pets: {user.petIds.map(petId => <PetView key={petId} petId={petId} />)}
         </div>}
@@ -97,10 +97,10 @@ const UserView = observer(props => {
 // render some pets, they'll go get the required data
 
 const PetView = observer(props => {
-    const [pet, petFromStore] = petStore.useGet(props.petId).tuple();
+    const petFromStore = petStore.useGet(props.petId);
 
     return <Loader storeItem={petFromStore}>
-        {() => pet && <div>
+        {pet => <div>
             Pet name: {pet.name}
         </div>}
     </Loader>;
@@ -108,13 +108,14 @@ const PetView = observer(props => {
 
 // handle request state as you like
 // for example, a component using render props
+// or use the in-built <Load> component
 
 const Loader = observer(props => {
     let {storeItem, children} = props;
     if(storeItem.loading) return <div>Loading</div>;
     if(storeItem.hasError) return <div>Error: {storeItem.error.message}</div>;
     if(!storeItem.hasData) return null;
-    return children();
+    return children(storeItem.data);
 });
 ```
 

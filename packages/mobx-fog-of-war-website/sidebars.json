@@ -4,6 +4,7 @@
       "intro",
       "store",
       "react",
+      "load",
       "rxjs",
       "alias"
     ]

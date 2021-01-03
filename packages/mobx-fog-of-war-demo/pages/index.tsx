@@ -166,7 +166,7 @@ const fakeBatchGetPlace = async (ids: PlaceArgs[]): Promise<Place[]> => {
 //
 
 import {autorun, toJS} from 'mobx';
-import {Store, rxRequest, asyncRequest, rxBatch} from 'mobx-fog-of-war';
+import {Store, rxRequest, asyncRequest, rxBatch, Load} from 'mobx-fog-of-war';
 import type {StoreItem} from 'mobx-fog-of-war';
 
 const userStore = new Store<UserArgs,User,string>({
@@ -298,6 +298,12 @@ export default function Main(): React.ReactElement {
     </StoreProvider>;
 }
 
+const Loader = (props) => <Load
+    loading="Loading"
+    error="Error"
+    {...props}
+/>;
+
 // boring layout, skip this one
 
 interface LayoutProps {
@@ -356,13 +362,14 @@ const UserView = observer(props => {
 
     const retry = () => userStore.get(userId, {staleTime: 0});
 
-    return <LoadingBoundary dependencies={[userFromStore]} retry={retry}>
-        {() => {
-            if(!userFromStore.data) return <Box>User not found</Box>;
+    return <Loader storeItems={[userFromStore]} retry={retry}>
+        {(user) => {
+            console.log('user', user);
+            if(!user) return <Box>User not found</Box>;
 
             return <Box p={3}>
                 <Box mb={3}>
-                    Name: {userFromStore.data.name}
+                    Name: {user.name}
                 </Box>
                 {commentFromStore && commentFromStore.data && <>
                     <Box mb={3}>
@@ -377,7 +384,7 @@ const UserView = observer(props => {
                 <FlagStatus commentFlagFromStore={commentFlagFromStore} />
             </Box>;
         }}
-    </LoadingBoundary>;
+    </Loader>;
 });
 
 const FlagStatus = observer((props) => {
@@ -401,9 +408,9 @@ const Comment = observer((props) => {
     return <Box mb={2}>
         {`"${comment.verb}"`}
         <span> ~ </span>
-        <LoadingBoundary dependencies={[placeFromStore]}>
-            {() => <span>at {placeFromStore.data ? placeFromStore.data.name : 'unknown place'}</span>}
-        </LoadingBoundary>
+        <Loader storeItems={[placeFromStore]}>
+            {(place) => <span>at {place ? place.name : 'unknown place'}</span>}
+        </Loader>
         <div>
             <small onClick={flag}>Flag this comment</small>
         </div>
@@ -412,96 +419,97 @@ const Comment = observer((props) => {
 
 // loading boundary
 
-type StateMapFn = (deps: Array<StoreItem<unknown,unknown>>) => boolean;
-
-const stateMap: {[key: string]: StateMapFn} = {
-    l: deps => deps.some(dep => dep && dep.loading),
-    L: deps => deps.every(dep => dep && dep.loading),
-    d: deps => deps.some(dep => dep && dep.hasData),
-    D: deps => deps.every(dep => dep && dep.hasData),
-    e: deps => deps.some(dep => dep && dep.error),
-    E: deps => deps.every(dep => dep && dep.error),
-    n: () => true,
-    N: () => true
-};
-
-const checkState = (dependencies: Array<StoreItem<unknown,unknown>>, type: string): boolean => {
-    const fn = stateMap[type];
-    if(!fn) {
-        throw new Error(`LoadingBoundary priority must be one of these characters ${Object.keys(stateMap).join('')}`);
-    }
-    return fn(dependencies);
-};
-
-const getState = (dependencies: Array<StoreItem<unknown,unknown>>, priorities): string => {
-
-    priorities = priorities.replace(/\s/g, '');
-
-    const ternary = priorities.match(/(.+?)\?(.+?):(.+)/);
-    if(ternary) {
-        const [, condition, ifTrue, ifFalse] = ternary;
-        const isTrue = checkState(dependencies, condition);
-        return getState(dependencies, isTrue ? ifTrue : ifFalse);
-    }
-
-    const state = priorities.split('').find(type => checkState(dependencies, type));
-    return state.toLowerCase() || 'd';
-};
-
-interface ErrorProps {
-    dependencies: Array<StoreItem<unknown,unknown>>;
-    errors: unknown[];
-}
-
-interface LoadingBoundaryProps {
-    children: () => React.ReactElement;
-    dependencies?: Array<StoreItem<unknown,unknown>>;
-    priorities?: string;
-    loading?: React.ReactElement;
-    error?: (props: ErrorProps) => React.ReactElement;
-    none?: React.ReactElement;
-    [propName: string]: unknown;
-}
-
-
-const LoadingBoundary = observer((props: LoadingBoundaryProps): React.ReactElement => {
-    const {
-        children,
-        dependencies = [],
-        priorities = 'e?le:Dln', // leDn
-        loading = DefaultLoading,
-        error: Err = DefaultError,
-        none = null
-    } = props;
-
-    const renderables: {[key: string]: () => React.ReactElement} = {
-        l: () => loading,
-        d: children,
-        // eslint-disable-next-line react/display-name
-        e: () => <Err
-            {...props}
-            errors={dependencies.map(dep => dep.error).filter(Boolean)}
-            dependencies={dependencies}
-        />,
-        n: () => none
-    };
-
-    const state = getState(dependencies, priorities);
-    return renderables[state]();
-});
-
-const DefaultLoading = <span>Loading...</span>;
-
-interface DefaultErrorProps {
-    dependencies: Array<StoreItem<unknown,unknown>>;
-    errors: unknown[];
-    retry?: () => void;
-}
-
-const DefaultError = (props: DefaultErrorProps): React.ReactElement => {
-    const {errors, retry} = props;
-    return <span>
-        Error: {errors[0]}
-        {retry && <a onClick={retry}>, click here to try again</a>}
-    </span>;
-};
+// type StateMapFn = (deps: Array<StoreItem<unknown,unknown>>) => boolean;
+//
+// const stateMap: {[key: string]: StateMapFn} = {
+//     l: deps => deps.some(dep => dep && dep.loading),
+//     L: deps => deps.every(dep => dep && dep.loading),
+//     d: deps => deps.some(dep => dep && dep.hasData),
+//     D: deps => deps.every(dep => dep && dep.hasData),
+//     e: deps => deps.some(dep => dep && dep.error),
+//     E: deps => deps.every(dep => dep && dep.error),
+//     n: () => true,
+//     N: () => true
+// };
+//
+// const checkState = (dependencies: Array<StoreItem<unknown,unknown>>, type: string): boolean => {
+//     const fn = stateMap[type];
+//     if(!fn) {
+//         throw new Error(`Loader priority must be one of these characters ${Object.keys(stateMap).join('')}`);
+//     }
+//     return fn(dependencies);
+// };
+//
+// const getState = (dependencies: Array<StoreItem<unknown,unknown>>, priorities): string => {
+//
+//     priorities = priorities.replace(/\s/g, '');
+//
+//     const ternary = priorities.match(/(.+?)\?(.+?):(.+)/);
+//     if(ternary) {
+//         const [, condition, ifTrue, ifFalse] = ternary;
+//         const isTrue = checkState(dependencies, condition);
+//         return getState(dependencies, isTrue ? ifTrue : ifFalse);
+//     }
+//
+//     const state = priorities.split('').find(type => checkState(dependencies, type));
+//     return state.toLowerCase() || 'd';
+// };
+//
+// interface ErrorProps {
+//     dependencies: Array<StoreItem<unknown,unknown>>;
+//     errors: unknown[];
+// }
+//
+// interface LoaderProps {
+//     children: () => React.ReactElement;
+//     dependencies?: Array<StoreItem<unknown,unknown>>;
+//     priorities?: string;
+//     loading?: React.ReactElement;
+//     error?: (props: ErrorProps) => React.ReactElement;
+//     none?: React.ReactElement;
+//     [propName: string]: unknown;
+// }
+//
+//
+// const Loader = observer((props: LoaderProps): React.ReactElement => {
+//     const {
+//         children,
+//         dependencies = [],
+//         priorities = 'e?le:Dln', // leDn
+//         loading = DefaultLoading,
+//         error: Err = DefaultError,
+//         none = null
+//     } = props;
+//
+//     const renderables: {[key: string]: () => React.ReactElement} = {
+//         l: () => loading,
+//         d: children,
+//         // eslint-disable-next-line react/display-name
+//         e: () => <Err
+//             {...props}
+//             errors={dependencies.map(dep => dep.error).filter(Boolean)}
+//             dependencies={dependencies}
+//         />,
+//         n: () => none
+//     };
+//
+//     const state = getState(dependencies, priorities);
+//     return renderables[state]();
+// });
+//
+// const DefaultLoading = <span>Loading...</span>;
+//
+// interface DefaultErrorProps {
+//     dependencies: Array<StoreItem<unknown,unknown>>;
+//     errors: unknown[];
+//     retry?: () => void;
+// }
+//
+// const DefaultError = (props: DefaultErrorProps): React.ReactElement => {
+//     const {errors, retry} = props;
+//     return <span>
+//         Error: {errors[0]}
+//         {retry && <a onClick={retry}>, click here to try again</a>}
+//     </span>;
+// };
+//
