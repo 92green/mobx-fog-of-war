@@ -1,0 +1,135 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>The Load component · mobx-fog-of-war ☁️ ⚔️ 🤯</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="The in-built `&lt;Load /&gt;` component is a general purpose React component to control rendering based off the state of StoreItems. It can understand the loading state multiple store items at once, and can also be easily customised to respond to different combinations of loading states."/><meta name="docsearch:language" content="en"/><meta property="og:title" content="The Load component · mobx-fog-of-war ☁️ ⚔️ 🤯"/><meta property="og:type" content="website"/><meta property="og:url" content="https://92green.github.io/mobx-fog-of-war/"/><meta property="og:description" content="The in-built `&lt;Load /&gt;` component is a general purpose React component to control rendering based off the state of StoreItems. It can understand the loading state multiple store items at once, and can also be easily customised to respond to different combinations of loading states."/><meta property="og:image" content="https://92green.github.io/mobx-fog-of-war/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://92green.github.io/mobx-fog-of-war/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/mobx-fog-of-war/undefined"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Mono"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script src="/mobx-fog-of-war/js/scrollSpy.js"></script><link rel="stylesheet" href="/mobx-fog-of-war/css/main.css"/><script src="/mobx-fog-of-war/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/mobx-fog-of-war/"><h2 class="headerTitle">mobx-fog-of-war ☁️ ⚔️ 🤯</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="https://github.com/92green/mobx-fog-of-war" target="_blank">GitHub</a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><div class="hamburger-menu"><div class="line1"></div><div class="line2"></div><div class="line3"></div></div></div><h2><i>›</i><span>Documentation</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle">Documentation</h3><ul class=""><li class="navListItem"><a class="navItem" href="/mobx-fog-of-war/docs/intro">Introduction</a></li><li class="navListItem"><a class="navItem" href="/mobx-fog-of-war/docs/store">Stores</a></li><li class="navListItem"><a class="navItem" href="/mobx-fog-of-war/docs/react">Usage with React</a></li><li class="navListItem navListItemActive"><a class="navItem" href="/mobx-fog-of-war/docs/load">The Load component</a></li><li class="navListItem"><a class="navItem" href="/mobx-fog-of-war/docs/rxjs">Usage with RxJS</a></li></ul></div></div></section></div><script>
+            var coll = document.getElementsByClassName('collapsible');
+            var checkActiveCategory = true;
+            for (var i = 0; i < coll.length; i++) {
+              var links = coll[i].nextElementSibling.getElementsByTagName('*');
+              if (checkActiveCategory){
+                for (var j = 0; j < links.length; j++) {
+                  if (links[j].classList.contains('navListItemActive')){
+                    coll[i].nextElementSibling.classList.toggle('hide');
+                    coll[i].childNodes[1].classList.toggle('rotate');
+                    checkActiveCategory = false;
+                    break;
+                  }
+                }
+              }
+
+              coll[i].addEventListener('click', function() {
+                var arrow = this.childNodes[1];
+                arrow.classList.toggle('rotate');
+                var content = this.nextElementSibling;
+                content.classList.toggle('hide');
+              });
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+              createToggler('#navToggler', '#docsNav', 'docsSliderActive');
+              createToggler('#tocToggler', 'body', 'tocActive');
+
+              var headings = document.querySelector('.toc-headings');
+              headings && headings.addEventListener('click', function(event) {
+                var el = event.target;
+                while(el !== headings){
+                  if (el.tagName === 'A') {
+                    document.body.classList.remove('tocActive');
+                    break;
+                  } else{
+                    el = el.parentNode;
+                  }
+                }
+              }, false);
+
+              function createToggler(togglerSelector, targetSelector, className) {
+                var toggler = document.querySelector(togglerSelector);
+                var target = document.querySelector(targetSelector);
+
+                if (!toggler) {
+                  return;
+                }
+
+                toggler.onclick = function(event) {
+                  event.preventDefault();
+
+                  target.classList.toggle(className);
+                };
+              }
+            });
+        </script></nav></div><div class="container mainContainer docsContainer"><div class="wrapper"><div class="post"><header class="postHeader"><h1 id="__docusaurus" class="postHeaderTitle">The Load component</h1></header><article><div><span><p>The in-built <code>&lt;Load /&gt;</code> component is a general purpose React component to control rendering based off the state of StoreItems. It can understand the loading state multiple store items at once, and can also be easily customised to respond to different combinations of loading states.</p>
+<pre><code class="hljs css language-jsx"><span class="hljs-keyword">import</span> {Load} <span class="hljs-keyword">from</span> <span class="hljs-string">'mobx-fog-of-war'</span>;
+
+<span class="hljs-comment">// customise for your app</span>
+
+<span class="hljs-comment">// props.errors is an array of store items that have errors</span>
+<span class="hljs-keyword">const</span> LoaderError = <span class="hljs-function">(<span class="hljs-params">props</span>) =&gt;</span> <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>Error: {props.errors[0].message}<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span>
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> Loader = <span class="hljs-function">(<span class="hljs-params">props</span>) =&gt;</span> <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">Load</span>
+    <span class="hljs-attr">loading</span>=<span class="hljs-string">{</span>&lt;<span class="hljs-attr">span</span>&gt;</span>Loading<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span>}
+    errorComponent={LoaderError}
+    {...props}
+/&gt;</span>;
+
+<span class="hljs-comment">// usage</span>
+<span class="hljs-keyword">const</span> UserView = observer(<span class="hljs-function"><span class="hljs-params">props</span> =&gt;</span> {
+    <span class="hljs-keyword">const</span> userFromStore = userStore.useGet(props.userId);
+    <span class="hljs-keyword">const</span> petFromStore = petStore.useGet(props.petId);
+
+    <span class="hljs-keyword">return</span> <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">Loader</span> <span class="hljs-attr">storeItems</span>=<span class="hljs-string">{[userFromStore,</span> <span class="hljs-attr">petFromStore</span>]}&gt;</span>
+        {(user, pet) =&gt; <span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>User's name: {user.name}, Pet's name: {pet.name}<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>}
+    <span class="hljs-tag">&lt;/<span class="hljs-name">Loader</span>&gt;</span></span>;
+});
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="load-props"></a><a href="#load-props" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Load Props</h3>
+<pre><code class="hljs css language-jsx">type Props = {
+    <span class="hljs-attr">storeItems</span>: StoreItem[];
+    children: <span class="hljs-function">(<span class="hljs-params">data1: D, data2: D...</span>) =&gt;</span> React.ReactElement|<span class="hljs-literal">null</span>;
+    priorities?: string;
+    loading?: React.ReactElement|<span class="hljs-literal">null</span>;
+    loadingComponent?: React.ComponentType&lt;{<span class="hljs-attr">storeItems</span>: StoreItem[]&gt;;
+    error?: React.ReactElement|<span class="hljs-literal">null</span>;
+    errorComponent?: React.ComponentType&lt;{<span class="hljs-attr">storeItems</span>: StoreItem[], <span class="hljs-attr">errors</span>: E[]}&gt;;
+};
+</code></pre>
+<h4><a class="anchor" aria-hidden="true" id="storeitems"></a><a href="#storeitems" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>storeItems</h4>
+<p>An array of one or more StoreItems.</p>
+<h4><a class="anchor" aria-hidden="true" id="children"></a><a href="#children" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>children</h4>
+<p>A function that will be called to render children conditionally depending on the state of the StoreItem's and the priorities. It is passed the <code>.data</code> of each StoreItem in the <code>storeItems</code> array as arguments.</p>
+<h4><a class="anchor" aria-hidden="true" id="priorities"></a><a href="#priorities" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>priorities</h4>
+<p>The <code>priorities</code> prop is a small code (a string) that describes which state the <code>&lt;Load /&gt;</code> component should display. It can only contain the uppercase or lowercase characters &quot;l&quot;, &quot;e&quot;, &quot;d&quot; and &quot;f&quot;, which correspond to types of checks against the state of the StoreItems. These are tested one by one from left to right.</p>
+<p>For example, <code>priorities=&quot;leD&quot;</code> tells <code>&lt;Load /&gt;</code> to do the following:</p>
+<ol>
+<li>render the loading state if anything is loading</li>
+<li>else, render the error state if anything has errored</li>
+<li>else, render children if <em>all</em> <code>storeItems</code> have data</li>
+<li>else, render nothing.</li>
+</ol>
+<ul>
+<li><code>&quot;l&quot;</code> - if any <code>storeItems</code> are loading, this will show the <code>loading</code> component or element, or render nothing if <code>loading</code> or <code>loadingComponent</code> is not provided.</li>
+<li><code>&quot;e&quot;</code> - if any <code>storeItems</code> have an error, this will show the <code>error</code> component or element, or render nothing if <code>error</code> or <code>errorComponent</code> is not provided.</li>
+<li><code>&quot;d&quot;</code> - if any <code>storeItems</code> have data, this will render the Load component's children.</li>
+<li><code>&quot;L&quot;</code> - works like <code>&quot;l&quot;</code>, except the test only passes when <em>all</em> <code>storeItems</code> are loading.</li>
+<li><code>&quot;E&quot;</code> - works like <code>&quot;e&quot;</code>, except the test only passes when <em>all</em> <code>storeItems</code> have an error.</li>
+<li><code>&quot;D&quot;</code> - works like <code>&quot;d&quot;</code>, except the test only passes when <em>all</em> <code>storeItems</code> have data.</li>
+</ul>
+<p>If no checks pass, normally nothing is rendered. However if <code>&quot;f&quot;</code> is added to the end of the priorities string then the <code>&lt;Load /&gt;</code> component's children will be rendered.</p>
+<p>Additionally there is the ability to have ternary logic, such as <code>e?le:Dl</code>. This example can be understood as <em>&quot;If there is an error, use <code>le</code> as the priorities string. If not, use <code>Dl</code> as the priorities string&quot;</em>.</p>
+<p>The default is <code>e?le:Dl</code>, which does the following:</p>
+<ul>
+<li>If any <code>storeItems</code> have an error
+<ol>
+<li>render the loading state if anything is loading</li>
+<li>else, render the error state</li>
+</ol></li>
+<li>If no <code>storeItems</code> have an error
+<ol>
+<li>render children if <em>all</em> <code>storeItems</code> have data</li>
+<li>else, render the loading state if anything is loading</li>
+<li>else, render nothing.</li>
+</ol></li>
+</ul>
+<h4><a class="anchor" aria-hidden="true" id="loading-and-loadingcomponent"></a><a href="#loading-and-loadingcomponent" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>loading and loadingComponent</h4>
+<p>Optional. Provide either a React element to <code>loading</code>, or a React component to <code>loadingComponent</code> to tell <code>&lt;Load /&gt;</code> what to render when the store items are loading.</p>
+<p>The <code>loadingComponent</code> component is passed <code>storeItems</code> as a prop.</p>
+<h4><a class="anchor" aria-hidden="true" id="error-and-errorcomponent"></a><a href="#error-and-errorcomponent" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>error and errorComponent</h4>
+<p>Optional. Provide either a React element to <code>error</code>, or a React component to <code>errorComponent</code> to tell <code>&lt;Load /&gt;</code> what to render when the store items are in an error state.</p>
+<p>The <code>errorComponent</code> component is passed <code>storeItems</code> as a prop, and an array of errors as an <code>errors</code> prop.</p>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/mobx-fog-of-war/docs/react"><span class="arrow-prev">← </span><span>Usage with React</span></a><a class="docs-next button" href="/mobx-fog-of-war/docs/rxjs"><span class="function-name-prevnext">Usage with RxJS</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"></nav></div><footer class="nav-footer" id="footer"><section class="copyright">Copyright © 2021 Damien Clarke - 92green</section></footer></div></body></html>
