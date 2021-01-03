@@ -31,17 +31,16 @@ Initially `userFromStore.data` will be `undefined` until the user data is loaded
 
 In the above example, if `props.userId` changes then the item corresponding to `props.userId`'s new value will be gotten.
 
-### Improvement 1 - Loader Component
+### An improvement - Loader Component
 
 Create a component to handle your loading states, and reuse it around your app. An example might be something like this:
 
 ```jsx
 const UserView = observer(props => {
     const userFromStore = userStore.useGet(props.userId);
-    const user = userFromStore.data;
 
     return <Loader storeItem={userFromStore}>
-        {() => <div>User's name: {user.name}</div>}
+        {user => <div>User's name: {user.name}</div>}
     </Loader>;
 });
 
@@ -53,21 +52,7 @@ const Loader = observer(props => {
     if(storeItem.loading) return <div>Loading</div>;
     if(storeItem.hasError) return <div>Error: {storeItem.error.message}</div>;
     if(!storeItem.hasData) return null;
-    return children();
-});
-```
-
-### Improvement 2 - StoreItem.tuple()
-
-You'll often want to get `StoreItem.data` and assign it to a variable. Use `StoreItem.tuple()` to turn your data access into a one-liner:
-
-```jsx
-const UserView = observer(props => {
-    const [user, userFromStore] = userStore.useGet(props.userId).tuple();
-
-    return <Loader storeItem={userFromStore}>
-        {() => <div>User's name: {user.name}</div>}
-    </Loader>;
+    return children(storeItem.data);
 });
 ```
 
@@ -83,13 +68,13 @@ const UserListView = observer(props => {
     const params = keyword !== '' ? {keyword} : undefined;
     // ^ pass undefined to useGet() to request no results
 
-    const [userList, userListFromStore] = userListStore.useGet(params).tuple();
+    const userListFromStore = userListStore.useGet(params);
 
     return <div>
         <input value={keyword} onChange={changeKeyword} />
 
         <Loader storeItem={userListFromStore}>
-            {() => <div>
+            {userList => <div>
                 {userList.map(user => <div key={user.id}>{user.name}</div>)}
             </div>}
         </Loader>
@@ -230,7 +215,7 @@ export const App = (props) => {
 
 const UserView = observer(props => {
     const {userStore} = useStores();
-    const [user, userFromStore] = userStore.useGet(props.userId).tuple();
+    const userFromStore = userStore.useGet(props.userId);
 
     // etc...
 });
