@@ -66,6 +66,7 @@ export type LoadProps<D1,E1,D2,E2,D3,E3,D4,E4,D5,E5,D6,E6> = {
     loadingComponent?: React.ComponentType<{storeItems: StoreItems<D1,E1,D2,E2,D3,E3,D4,E4,D5,E5,D6,E6>}>;
     error?: React.ReactElement|null;
     errorComponent?: React.ComponentType<{storeItems: StoreItems<D1,E1,D2,E2,D3,E3,D4,E4,D5,E5,D6,E6>, errors: Array<E1|E2|E3|E4|E5|E6>}>;
+    [key: string]: unknown;
 };
 
 function LoadInner<D1,E1,D2,E2,D3,E3,D4,E4,D5,E5,D6,E6>(props: LoadProps<D1,E1,D2,E2,D3,E3,D4,E4,D5,E5,D6,E6>): React.ReactElement|null {
@@ -75,12 +76,14 @@ function LoadInner<D1,E1,D2,E2,D3,E3,D4,E4,D5,E5,D6,E6>(props: LoadProps<D1,E1,D
         loading,
         loadingComponent: LoadingComponent,
         error,
-        errorComponent: ErrorComponent
+        errorComponent: ErrorComponent,
+        storeItems,
+        ...rest
     } = props;
 
-    const storeItems = (props.storeItems as unknown) as InnerStoreItems;
+    const typedStoreItems = (storeItems as unknown) as InnerStoreItems;
 
-    const priority = getPriority(storeItems, priorities);
+    const priority = getPriority(typedStoreItems, priorities);
     if(priority === 'n') {
         return null;
     }
@@ -88,24 +91,24 @@ function LoadInner<D1,E1,D2,E2,D3,E3,D4,E4,D5,E5,D6,E6>(props: LoadProps<D1,E1,D
         return LoadingComponent
             // just let LoadProps type enforce children() args, as it can have overloads
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            ? <LoadingComponent storeItems={storeItems as any} />
+            ? <LoadingComponent storeItems={typedStoreItems as any} {...rest} />
             : (loading || null);
     }
     if(priority === 'e') {
-        const errors = storeItems
+        const errors = typedStoreItems
             .map(dep => dep.error)
             .filter(error => error);
 
         return ErrorComponent
             // just let LoadProps type enforce children() args, as it can have overloads
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            ? <ErrorComponent storeItems={storeItems as any} errors={errors as any} />
+            ? <ErrorComponent storeItems={typedStoreItems as any} errors={errors as any} {...rest} />
             : (error || null);
     }
 
     // just let LoadProps type enforce children() args, as it can have overloads
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return <>{children(...storeItems.map(item => item.data) as any)}</>;
+    return <>{children(...typedStoreItems.map(item => item.data) as any)}</>;
 }
 
 export const Load = observer(LoadInner);

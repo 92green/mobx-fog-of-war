@@ -1,3 +1,4 @@
+import type {LoadProps} from '../src/index';
 import {Load, StoreItem, getPriority} from '../src/index';
 import React from 'react';
 import Enzyme, {shallow} from 'enzyme';
@@ -19,6 +20,10 @@ error.error = 'error!';
 const data = new StoreItem<number,string>();
 data.hasData = true;
 data.data = 123;
+
+type MyLoadProps<D1,E1,D2,E2,D3,E3,D4,E4,D5,E5,D6,E6> = LoadProps<D1,E1,D2,E2,D3,E3,D4,E4,D5,E5,D6,E6> & {
+    foo: boolean;
+};
 
 describe('getPriority', () => {
 
@@ -84,12 +89,13 @@ describe('Load', () => {
             it('should render loading component', () => {
                 const Loading = jest.fn((_props: unknown) => <div>loading</div>);
 
-                const wrapper = shallow(<Load storeItems={[loading]} loadingComponent={Loading}>{() => <div />}</Load>);
+                const wrapper = shallow(<Load storeItems={[loading]} loadingComponent={Loading} boo>{() => <div />}</Load>);
 
                 expect(wrapper.html()).toBe('<div>loading</div>');
                 expect(Loading).toHaveBeenCalledTimes(1);
                 expect(Loading.mock.calls[0][0]).toEqual({
-                    storeItems: [loading]
+                    storeItems: [loading],
+                    boo: true
                 });
             });
 
@@ -112,13 +118,14 @@ describe('Load', () => {
             it('should render error component', () => {
                 const Loading = jest.fn((_props: unknown) => <div>error</div>);
 
-                const wrapper = shallow(<Load storeItems={[error]} errorComponent={Loading}>{() => <div />}</Load>);
+                const wrapper = shallow(<Load storeItems={[error]} errorComponent={Loading} boo>{() => <div />}</Load>);
 
                 expect(wrapper.html()).toBe('<div>error</div>');
                 expect(Loading).toHaveBeenCalledTimes(1);
                 expect(Loading.mock.calls[0][0]).toEqual({
                     storeItems: [error],
-                    errors: ['error!']
+                    errors: ['error!'],
+                    boo: true
                 });
             });
 
@@ -140,7 +147,7 @@ describe('Load', () => {
         describe('in data state', () => {
 
             it('should render data', () => {
-                const children = jest.fn((_data: unknown) => <div>data</div>);
+                const children = jest.fn((_data: number|undefined) => <div>data</div>);
 
                 const wrapper = shallow(<Load storeItems={[data]}>{children}</Load>);
                 expect(wrapper.html()).toBe('<div>data</div>');
@@ -165,6 +172,19 @@ describe('Load', () => {
 
                 expect(children).toHaveBeenCalledTimes(1);
                 expect(children.mock.calls[0]).toEqual([{foo: 123}, {bar: 456}]);
+            });
+
+            it('should render data nested', () => {
+                const children = jest.fn((_data: number|undefined) => <div>data</div>);
+
+                const MyLoader = <D1,E1,D2,E2,D3,E3,D4,E4,D5,E5,D6,E6>(props: MyLoadProps<D1,E1,D2,E2,D3,E3,D4,E4,D5,E5,D6,E6>): React.ReactElement => {
+                    return <Load {...props} />;
+                };
+
+                const wrapper = shallow(<MyLoader storeItems={[data]} foo>{children}</MyLoader>);
+                expect(wrapper.html()).toBe('<div>data</div>');
+                expect(children).toHaveBeenCalledTimes(1);
+                expect(children.mock.calls[0][0]).toBe(123);
             });
 
         });
