@@ -2,7 +2,7 @@ module.exports = [
     {
         name: 'everything combined',
         path: "dist/mobx-fog-of-war.esm.js",
-        limit: "2.3 KB",
+        limit: "2.4 KB",
         ignore: ['react','mobx','mobx-react']
     },
     {
@@ -58,7 +58,7 @@ module.exports = [
         name: 'Load',
         path: "dist/mobx-fog-of-war.esm.js",
         import: "{ Load }",
-        limit: "1.7 KB",
+        limit: "1.8 KB",
         ignore: ['react','mobx','mobx-react']
     }
 ];
