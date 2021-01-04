@@ -60,7 +60,7 @@ type StoreItems<D1,E1,D2,E2,D3,E3,D4,E4,D5,E5,D6,E6> = [
 
 export type LoadProps<D1,E1,D2,E2,D3,E3,D4,E4,D5,E5,D6,E6> = {
     storeItems: StoreItems<D1,E1,D2,E2,D3,E3,D4,E4,D5,E5,D6,E6>,
-    children: (data1?: D1, data2?: D2, data3?: D3, data4?: D4, data5?: D5, data6?: D6) => React.ReactElement|null;
+    children: (data1?: D1, data2?: D2, data3?: D3, data4?: D4, data5?: D5, data6?: D6) => React.ReactElement|React.ReactElement[]|null;
     priorities?: string;
     loading?: React.ReactElement|null;
     loadingComponent?: React.ComponentType<{storeItems: StoreItems<D1,E1,D2,E2,D3,E3,D4,E4,D5,E5,D6,E6>}>;
@@ -105,7 +105,7 @@ function LoadInner<D1,E1,D2,E2,D3,E3,D4,E4,D5,E5,D6,E6>(props: LoadProps<D1,E1,D
 
     // just let LoadProps type enforce children() args, as it can have overloads
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return children(...storeItems.map(item => item.data) as any);
+    return <>{children(...storeItems.map(item => item.data) as any)}</>;
 }
 
 export const Load = observer(LoadInner);

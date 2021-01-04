@@ -140,10 +140,10 @@ describe('Load', () => {
         describe('in data state', () => {
 
             it('should render data', () => {
-                const children = jest.fn((_data: unknown) => <div />);
+                const children = jest.fn((_data: unknown) => <div>data</div>);
 
                 const wrapper = shallow(<Load storeItems={[data]}>{children}</Load>);
-                expect(wrapper.type()).toBe('div');
+                expect(wrapper.html()).toBe('<div>data</div>');
                 expect(children).toHaveBeenCalledTimes(1);
                 expect(children.mock.calls[0][0]).toBe(123);
             });
@@ -158,11 +158,11 @@ describe('Load', () => {
                 data2.hasData = true;
                 data2.data = {bar: 456};
 
-                const children = jest.fn((_foo: {foo: number}|undefined, _bar: {bar: number}|undefined) => <div />);
+                const children = jest.fn((_foo: {foo: number}|undefined, _bar: {bar: number}|undefined) => <div>data</div>);
 
                 const wrapper = shallow(<Load storeItems={[data1, data2]} priorities="d">{children}</Load>);
+                expect(wrapper.html()).toBe('<div>data</div>');
 
-                expect(wrapper.type()).toBe('div');
                 expect(children).toHaveBeenCalledTimes(1);
                 expect(children.mock.calls[0]).toEqual([{foo: 123}, {bar: 456}]);
             });

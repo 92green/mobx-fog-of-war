@@ -35,7 +35,7 @@ const UserView = observer(props => {
 ```jsx
 type Props = {
     storeItems: StoreItem[];
-    children: (data1: D, data2: D...) => React.ReactElement|null;
+    children: (data1: D, data2: D...) => React.ReactElement|React.ReactElement[]|null;
     priorities?: string;
     loading?: React.ReactElement|null;
     loadingComponent?: React.ComponentType<{storeItems: StoreItem[]>;
@@ -50,7 +50,7 @@ An array of one or more StoreItems.
 
 #### children
 
-A function that will be called to render children conditionally depending on the state of the StoreItem's and the priorities. It is passed the `.data` of each StoreItem in the `storeItems` array as arguments.
+A function that will be called to render children conditionally depending on the state of the StoreItem's and the priorities. It is passed the `.data` of each StoreItem in the `storeItems` array as arguments. Return a React element, an array of React elements, or null.
 
 #### priorities
 
