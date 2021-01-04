@@ -20,9 +20,7 @@ const priorityPropMap = {
 
 type Priority = 'l'|'d'|'e'|'n';
 
-type InnerStoreItems = [StoreItem<unknown,unknown>, ...StoreItem<unknown,unknown>[]];
-
-const checkPriority = (storeItems: InnerStoreItems, type: string): boolean => {
+const checkPriority = (storeItems: StoreItem<unknown,unknown>[], type: string): boolean => {
     const typeLower = type.toLowerCase();
     if('ldef'.indexOf(typeLower) === -1) {
         throw new Error(`Invalid priority`);
@@ -32,7 +30,7 @@ const checkPriority = (storeItems: InnerStoreItems, type: string): boolean => {
     return storeItems[fn](dep => dep && dep[prop]);
 };
 
-export const getPriority = (storeItems: InnerStoreItems, priorities: string): Priority => {
+export const getPriority = (storeItems: StoreItem<unknown,unknown>[], priorities: string): Priority => {
 
     priorities = priorities.replace(/\s/g, '');
 
@@ -50,7 +48,7 @@ export const getPriority = (storeItems: InnerStoreItems, priorities: string): Pr
 };
 
 type StoreItems<D1,E1,D2,E2,D3,E3,D4,E4,D5,E5,D6,E6> = [
-    StoreItem<D1,E1>,
+    StoreItem<D1,E1>?,
     StoreItem<D2,E2>?,
     StoreItem<D3,E3>?,
     StoreItem<D4,E4>?,
@@ -81,7 +79,7 @@ function LoadInner<D1,E1,D2,E2,D3,E3,D4,E4,D5,E5,D6,E6>(props: LoadProps<D1,E1,D
         ...rest
     } = props;
 
-    const typedStoreItems = (storeItems as unknown) as InnerStoreItems;
+    const typedStoreItems = (storeItems as unknown) as StoreItem<unknown,unknown>[];
 
     const priority = getPriority(typedStoreItems, priorities);
     if(priority === 'n') {
