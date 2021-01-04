@@ -58,7 +58,7 @@ type StoreItems<D1,E1,D2,E2,D3,E3,D4,E4,D5,E5,D6,E6> = [
     StoreItem<D6,E6>?
 ];
 
-type Props<D1,E1,D2,E2,D3,E3,D4,E4,D5,E5,D6,E6> = {
+export type LoadProps<D1,E1,D2,E2,D3,E3,D4,E4,D5,E5,D6,E6> = {
     storeItems: StoreItems<D1,E1,D2,E2,D3,E3,D4,E4,D5,E5,D6,E6>,
     children: (data1?: D1, data2?: D2, data3?: D3, data4?: D4, data5?: D5, data6?: D6) => React.ReactElement|null;
     priorities?: string;
@@ -68,7 +68,7 @@ type Props<D1,E1,D2,E2,D3,E3,D4,E4,D5,E5,D6,E6> = {
     errorComponent?: React.ComponentType<{storeItems: StoreItems<D1,E1,D2,E2,D3,E3,D4,E4,D5,E5,D6,E6>, errors: Array<E1|E2|E3|E4|E5|E6>}>;
 };
 
-function LoadInner<D1,E1,D2,E2,D3,E3,D4,E4,D5,E5,D6,E6>(props: Props<D1,E1,D2,E2,D3,E3,D4,E4,D5,E5,D6,E6>): React.ReactElement|null {
+function LoadInner<D1,E1,D2,E2,D3,E3,D4,E4,D5,E5,D6,E6>(props: LoadProps<D1,E1,D2,E2,D3,E3,D4,E4,D5,E5,D6,E6>): React.ReactElement|null {
     const {
         children,
         priorities = 'e?le:Dl',
@@ -86,7 +86,7 @@ function LoadInner<D1,E1,D2,E2,D3,E3,D4,E4,D5,E5,D6,E6>(props: Props<D1,E1,D2,E2
     }
     if(priority === 'l') {
         return LoadingComponent
-            // just let Props type enforce children() args, as it can have overloads
+            // just let LoadProps type enforce children() args, as it can have overloads
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             ? <LoadingComponent storeItems={storeItems as any} />
             : (loading || null);
@@ -97,13 +97,13 @@ function LoadInner<D1,E1,D2,E2,D3,E3,D4,E4,D5,E5,D6,E6>(props: Props<D1,E1,D2,E2
             .filter(error => error);
 
         return ErrorComponent
-            // just let Props type enforce children() args, as it can have overloads
+            // just let LoadProps type enforce children() args, as it can have overloads
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             ? <ErrorComponent storeItems={storeItems as any} errors={errors as any} />
             : (error || null);
     }
 
-    // just let Props type enforce children() args, as it can have overloads
+    // just let LoadProps type enforce children() args, as it can have overloads
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return children(...storeItems.map(item => item.data) as any);
 }
