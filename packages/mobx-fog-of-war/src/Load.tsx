@@ -135,9 +135,9 @@ function LoadInner<D1,E1,D2,E2,D3,E3,D4,E4,D5,E5>(props: LoadProps<D1,E1,D2,E2,D
     if(priority === 'l') {
         return LoadingComponent
             // just let LoadProps type enforce children() args, as it can have overloads
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
-            ? <LoadingComponent storeItems={typedStoreItems as any} {...rest} />
+            ? <LoadingComponent storeItems={typedStoreItems} {...rest} />
             : (loading || null);
     }
     if(priority === 'e') {
@@ -147,16 +147,16 @@ function LoadInner<D1,E1,D2,E2,D3,E3,D4,E4,D5,E5>(props: LoadProps<D1,E1,D2,E2,D
 
         return ErrorComponent
             // just let LoadProps type enforce children() args, as it can have overloads
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
-            ? <ErrorComponent storeItems={typedStoreItems as any} errors={errors as any} {...rest} />
+            ? <ErrorComponent storeItems={typedStoreItems} errors={errors} {...rest} />
             : (error || null);
     }
 
     // just let LoadProps type enforce children() args, as it can have overloads
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    return <>{children(typedStoreItems.map(item => item.data) as any, rest)}</>;
+    return <>{children(typedStoreItems.map(item => item.data), rest)}</>;
 }
 
 export const Load = observer(LoadInner);
