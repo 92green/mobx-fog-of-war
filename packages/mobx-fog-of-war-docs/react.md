@@ -63,23 +63,17 @@ The [generic Load component](/load) can understand the loading state multiple st
 ```jsx
 import {Load} from 'mobx-fog-of-war';
 
-// customise for your app
+const loadDefaults = {
+    loading: <span>Loading</span>,
+    // props.errors is an array of store items that have errors
+    errorComponent: (props) => <div>Error: {props.errors[0].message}</div>
+};
 
-// props.errors is an array of store items that have errors
-const LoaderError = (props) => <div>Error: {props.errors[0].message}</div>
-
-export const Loader = (props) => <Load
-    loading={<span>Loading</span>}
-    errorComponent={LoaderError}
-    {...props}
-/>;
-
-// usage
 const UserView = observer(props => {
     const userFromStore = userStore.useGet(props.userId);
 
-    return <Load storeItems={[userFromStore]}>
-        {user => <div>User's name: {user.name}</div>}
+    return <Load {...loadDefaults} storeItems={[userFromStore]}>
+        {([user]) => <div>User's name: {user.name}</div>}
     </Load>;
 });
 ```
@@ -102,7 +96,7 @@ const UserListView = observer(props => {
         <input value={keyword} onChange={changeKeyword} />
 
         <Load storeItems={[userListFromStore]}>
-            {userList => <div>
+            {([userList]) => <div>
                 {userList.map(user => <div key={user.id}>{user.name}</div>)}
             </div>}
         </Load>
@@ -132,7 +126,7 @@ const UserView = observer(props => {
 
     return usersFromStore.map((userFromStore, index) => {
         return <Load key={index} storeItems={[userFromStore]}>
-            {user => <div>User's name: {user.name}</div>}
+            {([user]) => <div>User's name: {user.name}</div>}
         </Load>
     });
 });

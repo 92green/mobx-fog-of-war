@@ -8,25 +8,19 @@ The in-built `<Load />` component is a general purpose React component to contro
 ```jsx
 import {Load} from 'mobx-fog-of-war';
 
-// customise for your app
+const loadDefaults = {
+    loading: <span>Loading</span>,
+    // props.errors is an array of store items that have errors
+    errorComponent: (props) => <div>Error: {props.errors[0].message}</div>
+};
 
-// props.errors is an array of store items that have errors
-const LoaderError = (props) => <div>Error: {props.errors[0].message}</div>
-
-export const Loader = (props) => <Load
-    loading={<span>Loading</span>}
-    errorComponent={LoaderError}
-    {...props}
-/>;
-
-// usage
 const UserView = observer(props => {
     const userFromStore = userStore.useGet(props.userId);
     const petFromStore = petStore.useGet(props.petId);
 
-    return <Loader storeItems={[userFromStore, petFromStore]}>
-        {(user, pet) => <div>User's name: {user.name}, Pet's name: {pet.name}</div>}
-    </Loader>;
+    return <Load {...loadDefaults} storeItems={[userFromStore, petFromStore]}>
+        {([user, pet]) => <div>User's name: {user?.name}, Pet's name: {pet?.name}</div>}
+    </Load>;
 });
 ```
 
@@ -50,7 +44,7 @@ An array of one or more StoreItems.
 
 #### children
 
-A function that will be called to render children conditionally depending on the state of the StoreItem's and the priorities. It is passed the `.data` of each StoreItem in the `storeItems` array as arguments. Return a React element, an array of React elements, or null.
+A function that will be called to render children conditionally depending on the state of the StoreItem's and the priorities. It is passed an array of the `.data` of each StoreItem in the `storeItems` array as the first argument, and any additional props as the second argument. From this function you can return a React element, an array of React elements, or null.
 
 #### priorities
 
