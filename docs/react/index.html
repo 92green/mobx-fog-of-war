@@ -102,23 +102,17 @@
 <p>The <a href="/load">generic Load component</a> can understand the loading state multiple store items, and can also be easily customised to respond to different combinations of loading states.</p>
 <pre><code class="hljs css language-jsx"><span class="hljs-keyword">import</span> {Load} <span class="hljs-keyword">from</span> <span class="hljs-string">'mobx-fog-of-war'</span>;
 
-<span class="hljs-comment">// customise for your app</span>
+<span class="hljs-keyword">const</span> loadDefaults = {
+    <span class="hljs-attr">loading</span>: <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">span</span>&gt;</span>Loading<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span></span>,
+    <span class="hljs-comment">// props.errors is an array of store items that have errors</span>
+    <span class="hljs-attr">errorComponent</span>: <span class="hljs-function">(<span class="hljs-params">props</span>) =&gt;</span> <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>Error: {props.errors[0].message}<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span>
+};
 
-<span class="hljs-comment">// props.errors is an array of store items that have errors</span>
-<span class="hljs-keyword">const</span> LoaderError = <span class="hljs-function">(<span class="hljs-params">props</span>) =&gt;</span> <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>Error: {props.errors[0].message}<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span>
-
-<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> Loader = <span class="hljs-function">(<span class="hljs-params">props</span>) =&gt;</span> <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">Load</span>
-    <span class="hljs-attr">loading</span>=<span class="hljs-string">{</span>&lt;<span class="hljs-attr">span</span>&gt;</span>Loading<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span>}
-    errorComponent={LoaderError}
-    {...props}
-/&gt;</span>;
-
-<span class="hljs-comment">// usage</span>
 <span class="hljs-keyword">const</span> UserView = observer(<span class="hljs-function"><span class="hljs-params">props</span> =&gt;</span> {
     <span class="hljs-keyword">const</span> userFromStore = userStore.useGet(props.userId);
 
-    <span class="hljs-keyword">return</span> <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">Load</span> <span class="hljs-attr">storeItems</span>=<span class="hljs-string">{[userFromStore]}</span>&gt;</span>
-        {user =&gt; <span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>User's name: {user.name}<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>}
+    <span class="hljs-keyword">return</span> <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">Load</span> {<span class="hljs-attr">...loadDefaults</span>} <span class="hljs-attr">storeItems</span>=<span class="hljs-string">{[userFromStore]}</span>&gt;</span>
+        {([user]) =&gt; <span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>User's name: {user.name}<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>}
     <span class="hljs-tag">&lt;/<span class="hljs-name">Load</span>&gt;</span></span>;
 });
 </code></pre>
@@ -137,7 +131,7 @@
         <span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">value</span>=<span class="hljs-string">{keyword}</span> <span class="hljs-attr">onChange</span>=<span class="hljs-string">{changeKeyword}</span> /&gt;</span>
 
         <span class="hljs-tag">&lt;<span class="hljs-name">Load</span> <span class="hljs-attr">storeItems</span>=<span class="hljs-string">{[userListFromStore]}</span>&gt;</span>
-            {userList =&gt; <span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>
+            {([userList]) =&gt; <span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>
                 {userList.map(user =&gt; <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">key</span>=<span class="hljs-string">{user.id}</span>&gt;</span>{user.name}<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>)}
             <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>}
         <span class="hljs-tag">&lt;/<span class="hljs-name">Load</span>&gt;</span>
@@ -160,7 +154,7 @@
 
     <span class="hljs-keyword">return</span> usersFromStore.map(<span class="hljs-function">(<span class="hljs-params">userFromStore, index</span>) =&gt;</span> {
         <span class="hljs-keyword">return</span> <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">Load</span> <span class="hljs-attr">key</span>=<span class="hljs-string">{index}</span> <span class="hljs-attr">storeItems</span>=<span class="hljs-string">{[userFromStore]}</span>&gt;</span>
-            {user =&gt; <span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>User's name: {user.name}<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>}
+            {([user]) =&gt; <span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>User's name: {user.name}<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>}
         <span class="hljs-tag">&lt;/<span class="hljs-name">Load</span>&gt;</span></span>
     });
 });
