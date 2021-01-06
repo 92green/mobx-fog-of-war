@@ -114,6 +114,15 @@ export type LoadProps<D1,E1,D2,E2,D3,E3,D4,E4,D5,E5> = LoadProps5<D1,E1,D2,E2,D3
     |LoadProps1<D1,E1>
     |LoadPropsArray<D1,E1>;
 
+type LoadComponentProps = {
+    renderer: () => ChildrenReturn;
+};
+
+// render children into a component, so children rendered can use their own hooks and have their own lifecycles
+function LoadComponent(props: LoadComponentProps): React.ReactElement {
+    return <>{props.renderer()}</>;
+}
+
 function LoadInner<D1,E1,D2,E2,D3,E3,D4,E4,D5,E5>(props: LoadProps<D1,E1,D2,E2,D3,E3,D4,E4,D5,E5>): React.ReactElement|null {
     const {
         children,
@@ -156,7 +165,7 @@ function LoadInner<D1,E1,D2,E2,D3,E3,D4,E4,D5,E5>(props: LoadProps<D1,E1,D2,E2,D
     // just let LoadProps type enforce children() args, as it can have overloads
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    return <>{children(typedStoreItems.map(item => item.data), rest)}</>;
+    return <LoadComponent renderer={() => children(typedStoreItems.map(item => item.data), rest)} />;
 }
 
 export const Load = observer(LoadInner);
