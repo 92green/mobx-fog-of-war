@@ -3,6 +3,9 @@ import {mocked} from 'ts-jest/utils';
 import React from 'react';
 import {toJS, autorun} from 'mobx';
 
+import {useEffectVariadic} from '../src/useEffectVariadic';
+jest.mock('../src/useEffectVariadic');
+
 const setNow = (ms: number): number => {
     ms = Math.floor(ms);
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -617,9 +620,6 @@ describe('Store', () => {
 
     describe('useBatchGet', () => {
 
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
-        jest.spyOn(React, "useEffect").mockImplementation(() => {});
-
         it('should call useEffect() and return read()[]', () => {
             const store = new Store<number,string,string>();
             store.get = jest.fn();
@@ -627,9 +627,9 @@ describe('Store', () => {
             const items = store.useBatchGet([1,2,3]);
             const keys = [1,2,3].map(n => argsToKey(n));
 
-            expect(mocked(React.useEffect)).toHaveBeenCalledTimes(1);
-            expect(mocked(React.useEffect).mock.calls[0][1]).toEqual(keys);
-            mocked(React.useEffect).mock.calls[0][0]();
+            expect(mocked(useEffectVariadic)).toHaveBeenCalledTimes(1);
+            expect(mocked(useEffectVariadic).mock.calls[0][1]).toEqual(keys);
+            mocked(useEffectVariadic).mock.calls[0][0]();
 
             expect(mocked(store.get)).toHaveBeenCalledTimes(3);
             expect(mocked(store.get).mock.calls[0][0]).toBe(1);
@@ -650,7 +650,7 @@ describe('Store', () => {
 
             const items = store.useBatchGet(undefined);
             expect(items).toEqual([]);
-            expect(mocked(React.useEffect)).toHaveBeenCalledTimes(0);
+            expect(mocked(useEffectVariadic)).toHaveBeenCalledTimes(0);
             expect(mocked(store.get)).toHaveBeenCalledTimes(0);
         });
 
@@ -661,9 +661,9 @@ describe('Store', () => {
             store.useBatchGet([2], {staleTime: 1, dependencies: ['foo']});
             const key2 = argsToKey(2);
 
-            expect(mocked(React.useEffect)).toHaveBeenCalledTimes(1);
-            expect(mocked(React.useEffect).mock.calls[0][1]).toEqual([key2, 'foo']);
-            mocked(React.useEffect).mock.calls[0][0]();
+            expect(mocked(useEffectVariadic)).toHaveBeenCalledTimes(1);
+            expect(mocked(useEffectVariadic).mock.calls[0][1]).toEqual([key2, 'foo']);
+            mocked(mocked(useEffectVariadic)).mock.calls[0][0]();
 
             expect(mocked(store.get)).toHaveBeenCalledTimes(1);
             expect(mocked(store.get).mock.calls[0][0]).toBe(2);

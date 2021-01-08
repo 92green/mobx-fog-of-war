@@ -1,6 +1,7 @@
 import {observable, action, autorun} from 'mobx';
 import {useEffect} from 'react';
 import {argsToKey} from './argsToKey';
+import {useEffectVariadic} from './useEffectVariadic';
 
 export type StoreItemTuple<D,E> = [
     D|undefined,
@@ -320,7 +321,6 @@ export class Store<A,D extends NotUndefined,E extends NotUndefined,AA=string> {
     //
     // react hook to get data
     // because React doesn't like side effects during a render
-    // call it every render because this'll be deduped upstream anyway
 
     useGet = (args: A|undefined, {dependencies = [], ...restOptions}: UseGetOptions<AA> = {}): StoreItem<D,E> => {
         const key = argsToKey(args);
@@ -336,14 +336,13 @@ export class Store<A,D extends NotUndefined,E extends NotUndefined,AA=string> {
     //
     // react hook to get an array of items
     // because React doesn't like side effects during a render
-    // call it every render because this'll be deduped upstream anyway
 
     useBatchGet = (argsArray: A[]|undefined, {dependencies = [], ...restOptions}: UseGetOptions<AA> = {}): StoreItem<D,E>[] => {
         if(argsArray === undefined) return [];
 
         const keys = argsArray.map(args => argsToKey(args));
 
-        useEffect(() => {
+        useEffectVariadic(() => {
             argsArray.forEach(args => this.get(args, restOptions));
         }, [...keys, ...dependencies]);
 
