@@ -321,7 +321,6 @@ export class Store<A,D extends NotUndefined,E extends NotUndefined,AA=string> {
     //
     // react hook to get data
     // because React doesn't like side effects during a render
-    // call it every render because this'll be deduped upstream anyway
 
     useGet = (args: A|undefined, {dependencies = [], ...restOptions}: UseGetOptions<AA> = {}): StoreItem<D,E> => {
         const key = argsToKey(args);
@@ -337,7 +336,6 @@ export class Store<A,D extends NotUndefined,E extends NotUndefined,AA=string> {
     //
     // react hook to get an array of items
     // because React doesn't like side effects during a render
-    // call it every render because this'll be deduped upstream anyway
 
     useBatchGet = (argsArray: A[]|undefined, {dependencies = [], ...restOptions}: UseGetOptions<AA> = {}): StoreItem<D,E>[] => {
         if(argsArray === undefined) return [];
