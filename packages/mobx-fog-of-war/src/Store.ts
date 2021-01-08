@@ -1,6 +1,7 @@
 import {observable, action, autorun} from 'mobx';
 import {useEffect} from 'react';
 import {argsToKey} from './argsToKey';
+import {useEffectVariadic} from './useEffectVariadic';
 
 export type StoreItemTuple<D,E> = [
     D|undefined,
@@ -343,7 +344,7 @@ export class Store<A,D extends NotUndefined,E extends NotUndefined,AA=string> {
 
         const keys = argsArray.map(args => argsToKey(args));
 
-        useEffect(() => {
+        useEffectVariadic(() => {
             argsArray.forEach(args => this.get(args, restOptions));
         }, [...keys, ...dependencies]);
 
