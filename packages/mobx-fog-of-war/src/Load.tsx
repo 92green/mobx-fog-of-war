@@ -119,9 +119,9 @@ type LoadComponentProps = {
 };
 
 // render children into a component, so children rendered can use their own hooks and have their own lifecycles
-function LoadComponent(props: LoadComponentProps): React.ReactElement {
+const LoadComponent = observer((props: LoadComponentProps): React.ReactElement => {
     return <>{props.renderer()}</>;
-}
+});
 
 function LoadInner<D1,E1,D2,E2,D3,E3,D4,E4,D5,E5>(props: LoadProps<D1,E1,D2,E2,D3,E3,D4,E4,D5,E5>): React.ReactElement|null {
     const {
