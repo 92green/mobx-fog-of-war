@@ -3,6 +3,7 @@ export * from './Store';
 export * from './rxBatch';
 export * from './rxRequest';
 export * from './asyncRequest';
+export * from './batchRequest';
 export * from './sortByArgsArray';
 export * from './provideStores';
 export * from './Load';
