@@ -16,13 +16,22 @@ export const batchRequest = <A,D,E>(requester: Requester<A,D,E>, options: Option
     } = options;
 
     let buffer: A[] = [];
+    let promise: Promise<unknown>|undefined;
+    let timeoutId: number = -1;
 
-    const flush = () => {
+    const flush = async () => {
+        window.clearTimeout(timeoutId);
+        timeoutId = -1;
+
         if(buffer.length === 0) return;
         const argsArray = buffer;
         buffer = [];
 
-        requester(argsArray).then(
+
+        promise && await promise;
+
+
+        promise = requester(argsArray).then(
             action((items: Receive<A,D|undefined,E>[]) => {
                 items.forEach(item => store.receive(item));
             }),
@@ -41,7 +50,7 @@ export const batchRequest = <A,D,E>(requester: Requester<A,D,E>, options: Option
 
         // start new buffer if none exists
         if(buffer.length === 0) {
-            setTimeout(flush, bufferTime);
+            timeoutId = window.setTimeout(flush, bufferTime * 1000);
         }
 
         // add item to buffer
