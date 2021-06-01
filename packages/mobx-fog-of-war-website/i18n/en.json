@@ -12,6 +12,9 @@
       "load": {
         "title": "The Load component"
       },
+      "merge": {
+        "title": "Merging StoreItems"
+      },
       "react": {
         "title": "Usage with React"
       },

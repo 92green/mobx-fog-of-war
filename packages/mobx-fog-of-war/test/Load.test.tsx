@@ -1,4 +1,4 @@
-import {Load, StoreItem, getPriority} from '../src/index';
+import {Load, StoreItem} from '../src/index';
 import React from 'react';
 import Enzyme, {shallow} from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
@@ -33,42 +33,6 @@ type ErrorProps3 = {
     storeItems: [StoreItem<number,string>,StoreItem<number,string>,StoreItem<number,string>];
     errors: [string?,string?,string?];
 };
-
-describe('getPriority', () => {
-
-    it('should return correct priorities', () => {
-        expect(getPriority([loading, error, data, empty], 'led')).toBe('l');
-        expect(getPriority([error, data, empty], 'led')).toBe('e');
-        expect(getPriority([data, empty], 'led')).toBe('d');
-        expect(getPriority([empty], 'led')).toBe('n');
-        expect(getPriority([empty], 'ledf')).toBe('d');
-    });
-
-    it('should return correct priorities for everys', () => {
-        expect(getPriority([loading, loading, loading], 'L')).toBe('l');
-        expect(getPriority([loading, loading, loading, empty], 'L')).toBe('n');
-
-        expect(getPriority([error, error, error], 'E')).toBe('e');
-        expect(getPriority([error, error, error, empty], 'E')).toBe('n');
-
-        expect(getPriority([data, data, data], 'D')).toBe('d');
-        expect(getPriority([data, data, data, empty], 'D')).toBe('n');
-    });
-
-    it('should return correct priorities using ternaries', () => {
-        expect(getPriority([loading, error], 'e?le:Dl')).toBe('l');
-        expect(getPriority([error], 'e?le:Dl')).toBe('e');
-        expect(getPriority([data], 'e?le:Dl')).toBe('d');
-        expect(getPriority([data, loading], 'e?le:Dl')).toBe('l');
-        expect(getPriority([loading], 'e?le:Dl')).toBe('l');
-        expect(getPriority([empty], 'e?le:Dl')).toBe('n');
-    });
-
-    it('should error if given incorrect priority', () => {
-        expect(() => getPriority([empty], 'ledQ')).toThrow('Invalid priority');
-    });
-
-});
 
 describe('Load', () => {
 

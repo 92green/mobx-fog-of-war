@@ -4,9 +4,10 @@
       "intro",
       "store",
       "react",
-      "load",
       "rxjs",
-      "alias"
+      "alias",
+      "merge",
+      "load"
     ]
   }
 }
