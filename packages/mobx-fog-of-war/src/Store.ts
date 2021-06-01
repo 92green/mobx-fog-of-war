@@ -2,6 +2,7 @@ import {observable, action, autorun} from 'mobx';
 import {useEffect} from 'react';
 import {argsToKey} from './argsToKey';
 import {useEffectVariadic} from './useEffectVariadic';
+import {mergeStoreItems} from './mergeStoreItems';
 
 export type StoreItemTuple<D,E> = [
     D|undefined,
@@ -75,6 +76,13 @@ export interface UseGetOptions<AA> {
     staleTime?: number;
     dependencies?: unknown[];
     alias?: AA;
+}
+
+export interface UseGetManyOptions<AA> {
+    staleTime?: number;
+    dependencies?: unknown[];
+    alias?: AA;
+    priorities?: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/ban-types
@@ -347,5 +355,15 @@ export class Store<A,D extends NotUndefined,E extends NotUndefined,AA=string> {
         }, [...keys, ...dependencies]);
 
         return argsArray.map(args => this.read(args));
+    };
+
+    // useGetMany()
+    //
+    // react hook to get an array of items
+    // because React doesn't like side effects during a render
+
+    useGetMany = (argsArray: A[]|undefined, {priorities, ...restOptions}: UseGetManyOptions<AA> = {}): StoreItem<D[],E[]> => {
+        const storeItems = this.useBatchGet(argsArray, restOptions);
+        return mergeStoreItems(storeItems, priorities);
     };
 }

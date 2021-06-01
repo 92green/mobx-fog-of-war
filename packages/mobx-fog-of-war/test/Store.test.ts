@@ -670,5 +670,56 @@ describe('Store', () => {
             expect(mocked(store.get).mock.calls[0][1]).toEqual({staleTime: 1});
         });
     });
+
+    describe('useGetMany', () => {
+
+        it('should call useEffect() and return read()[]', () => {
+            const store = new Store<number,string,string>();
+            store.get = jest.fn();
+
+            const item = store.useGetMany([1,2,3]);
+            const keys = [1,2,3].map(n => argsToKey(n));
+
+            expect(mocked(useEffectVariadic)).toHaveBeenCalledTimes(1);
+            expect(mocked(useEffectVariadic).mock.calls[0][1]).toEqual(keys);
+            mocked(useEffectVariadic).mock.calls[0][0]();
+
+            expect(mocked(store.get)).toHaveBeenCalledTimes(3);
+            expect(mocked(store.get).mock.calls[0][0]).toBe(1);
+            expect(mocked(store.get).mock.calls[1][0]).toBe(2);
+            expect(mocked(store.get).mock.calls[2][0]).toBe(3);
+            expect(mocked(store.get).mock.calls[0][1]).toEqual({});
+            expect(mocked(store.get).mock.calls[1][1]).toEqual({});
+            expect(mocked(store.get).mock.calls[2][1]).toEqual({});
+
+            expect(item instanceof StoreItem).toBe(true);
+        });
+
+        it('should not call useEffect() if called with undefined', () => {
+            const store = new Store<number,string,string>();
+            store.get = jest.fn();
+
+            const item = store.useGetMany(undefined);
+            expect(item instanceof StoreItem).toBe(true);
+            expect(mocked(useEffectVariadic)).toHaveBeenCalledTimes(0);
+            expect(mocked(store.get)).toHaveBeenCalledTimes(0);
+        });
+
+        it('should call get() with options', () => {
+            const store = new Store<number,string,string>();
+            store.get = jest.fn();
+
+            store.useGetMany([2], {staleTime: 1, dependencies: ['foo']});
+            const key2 = argsToKey(2);
+
+            expect(mocked(useEffectVariadic)).toHaveBeenCalledTimes(1);
+            expect(mocked(useEffectVariadic).mock.calls[0][1]).toEqual([key2, 'foo']);
+            mocked(mocked(useEffectVariadic)).mock.calls[0][0]();
+
+            expect(mocked(store.get)).toHaveBeenCalledTimes(1);
+            expect(mocked(store.get).mock.calls[0][0]).toBe(2);
+            expect(mocked(store.get).mock.calls[0][1]).toEqual({staleTime: 1});
+        });
+    });
 });
 

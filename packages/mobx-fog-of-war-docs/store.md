@@ -45,7 +45,7 @@ const userListStore = new Store<SearchParams,User[],Error>({
 
 You use a store by calling methods to access its contents, and the store will handle whether the data needs to be requested from somewhere like a server, or simply returned from the cache. Items cached in the store can be configured to become stale after a period of time, and if an stale item is retrieved from the store, then it should be requested from the server again.
 
-Methods to use include [get()](#storeget), [read()](#storeread), [request()](#storerequest), and the React hooks [useGet()](#storeuseget) and [useBatchGet()](#storeusebatchget).
+Methods to use include [get()](#storeget), [read()](#storeread), [request()](#storerequest), and the React hooks [useGet()](#storeuseget), [useBatchGet()](#storeusebatchget) and [useGetMany()](#storeusegetmany).
 
 ## Requests
 
@@ -332,6 +332,26 @@ const MyComponent = (props) => {
 The `useBatchGet()` method is a React hook very similar to [useGet()](#storeuseget), except it allows you to get an arbitrary and variable amount of items.
 
 - If `undefined` is passed as the first argument, no request will take place.
+- The optional `options` object can contain `staleTime: number` to use a different stale time than the Store's default time. For example `{staleTime: 0}` can be used to always force a new request.
+- The optional `options` object can contain `alias: AA`. This creates an alias for the current `args` that can be looked up via [readAlias()](#storereadalias)
+- The optional `options` object can contain `dependencies: any[]` which are passed to the internal `useEffect` hook. If any dependencies change, `get()` will be called again with the current `args`.
+
+### store.useGetMany()
+
+```typescript
+// signature
+store.useGetMany(argsArray: A[]?, options?: {}) => StoreItem
+
+// usage
+const MyComponent = (props) => {
+    const usersFromStore = userStore.useGetMany(props.idArray);
+};
+```
+
+The `useGetMany()` method is a React hook very similar to [useBatchGet()](#storeusebatchget), allowing you to get an arbitrary and variable amount of items, but returning the results in a single merged StoreItem.
+
+- If `undefined` is passed as the first argument, no request will take place.
+- The optional `options` object can contain `priorities: string` which are used to determine how loading states are merged; see [mergeStoreItems](Merging StoreItems) for details.
 - The optional `options` object can contain `staleTime: number` to use a different stale time than the Store's default time. For example `{staleTime: 0}` can be used to always force a new request.
 - The optional `options` object can contain `alias: AA`. This creates an alias for the current `args` that can be looked up via [readAlias()](#storereadalias)
 - The optional `options` object can contain `dependencies: any[]` which are passed to the internal `useEffect` hook. If any dependencies change, `get()` will be called again with the current `args`.

@@ -1,51 +1,7 @@
 import React from 'react';
 import {observer} from 'mobx-react';
 import type {StoreItem} from './Store';
-
-/*
-how priorities work:
-
-D = data, E = error, L = loading, F = fallback … Uppercase = all, Lowercase = one or more
-It tries each going left to right to find a condition that satisfies, and shows the corresponding state
-
-e.g. "leD" means "if any are loading, show loader. Else, if any are errored, show error. Else, if ALL have data, show data (the function passed as React children).
-e.g. "ef" means "if any are errored, show error. Else, fallback and render the function passed as React children"
-*/
-
-const priorityPropMap = {
-    l: 'loading',
-    d: 'hasData',
-    e: 'hasError'
-};
-
-type Priority = 'l'|'d'|'e'|'n';
-
-const checkPriority = (storeItems: StoreItem<unknown,unknown>[], type: string): boolean => {
-    const typeLower = type.toLowerCase();
-    if('ldef'.indexOf(typeLower) === -1) {
-        throw new Error(`Invalid priority`);
-    }
-    const prop = priorityPropMap[typeLower as 'l'|'d'|'e'] as 'loading'|'hasData'|'hasError';
-    const fn: 'some'|'every' = type === typeLower ? 'some' : 'every';
-    return storeItems[fn](dep => dep && dep[prop]);
-};
-
-export const getPriority = (storeItems: StoreItem<unknown,unknown>[], priorities: string): Priority => {
-
-    priorities = priorities.replace(/\s/g, '');
-
-    const ternary = priorities.match(/(.+?)\?(.+?):(.+)/);
-    if(ternary) {
-        const [, condition, ifTrue, ifFalse] = ternary;
-        const isTrue = checkPriority(storeItems, condition);
-        return getPriority(storeItems, isTrue ? ifTrue : ifFalse);
-    }
-
-    const state = priorities.split('').find(type => checkPriority(storeItems, type))
-        || (/f$/.test(priorities) ? 'd' : 'n');
-
-    return state.toLowerCase() as Priority;
-};
+import {getPriority} from './mergeStoreItems';
 
 type ChildrenReturn = React.ReactElement|React.ReactElement[]|null;
 

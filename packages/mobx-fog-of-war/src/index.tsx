@@ -7,3 +7,4 @@ export * from './sortByArgsArray';
 export * from './provideStores';
 export * from './Load';
 export * from './useEffectVariadic';
+export * from './mergeStoreItems';
