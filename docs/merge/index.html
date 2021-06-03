@@ -68,7 +68,7 @@
 <span class="hljs-comment">// userAndPetFromStore.error is [userFromStore.error, petFromStore.error]</span>
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="mergestoreitems"></a><a href="#mergestoreitems" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>mergeStoreItems</h3>
-<pre><code class="hljs css language-jsx">mergeStoreItems(storeItems: StoreItem[], priorities = <span class="hljs-string">'e?le:Dl'</span>): StoreItem
+<pre><code class="hljs css language-jsx">mergeStoreItems(storeItems: StoreItem[]|<span class="hljs-literal">undefined</span>, priorities = <span class="hljs-string">'e?le:Dl'</span>): StoreItem
 </code></pre>
 <h4><a class="anchor" aria-hidden="true" id="storeitems"></a><a href="#storeitems" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>storeItems</h4>
 <p>An array of one or more StoreItems.</p>
@@ -90,6 +90,8 @@
 <li><code>&quot;D&quot;</code> - works like <code>&quot;d&quot;</code>, except the test only passes when <em>all</em> <code>storeItems</code> have data.</li>
 </ul>
 <p>If no checks pass, normally no loading statuses are set to <code>true</code>. However if <code>&quot;f&quot;</code> is added to the end of the priorities string then it will output <code>.hasData = true</code>.</p>
+<p>If an empty array is passed to <code>mergeStoreItems</code>, this is treated as though requests were successful, which by default will return a StoreItem with <code>.hasData = true</code>.</p>
+<p>If <code>undefined</code> is passed to <code>mergeStoreItems</code>, this is treated as though a request never took place, which by default will return a StoreItem with <code>.loading = false</code>, <code>.hasError = false</code> and <code>.hasData = false</code>.</p>
 <p>Additionally there is the ability to have ternary logic, such as <code>e?le:Dl</code>. This example can be understood as <em>&quot;If there is an error, use <code>le</code> as the priorities string. If not, use <code>Dl</code> as the priorities string&quot;</em>.</p>
 <p>The default is <code>e?le:Dl</code>, which does the following:</p>
 <ul>
