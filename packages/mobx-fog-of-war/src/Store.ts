@@ -364,6 +364,6 @@ export class Store<A,D extends NotUndefined,E extends NotUndefined,AA=string> {
 
     useGetMany = (argsArray: A[]|undefined, {priorities, ...restOptions}: UseGetManyOptions<AA> = {}): StoreItem<D[],E[]> => {
         const storeItems = this.useBatchGet(argsArray, restOptions);
-        return mergeStoreItems(storeItems, priorities);
+        return mergeStoreItems(argsArray ? storeItems : undefined, priorities);
     };
 }

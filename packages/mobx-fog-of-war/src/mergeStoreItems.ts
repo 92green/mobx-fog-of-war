@@ -17,9 +17,6 @@ const checkPriority = (storeItems: StoreItem<unknown,unknown>[], type: string): 
     if(type === typeLower) {
         return storeItems.some(dep => dep && dep[prop]);
     }
-    if(storeItems.length === 0) {
-        return false;
-    }
     return storeItems.every(dep => dep && dep[prop]);
 };
 
@@ -40,7 +37,7 @@ export const getPriority = (storeItems: StoreItem<unknown,unknown>[], priorities
     return state.toLowerCase() as Priority;
 };
 
-export function mergeStoreItems<D,E>(storeItems: StoreItem<D,E>[], priorities?: string): StoreItem<D[],E[]>;
+export function mergeStoreItems<D,E>(storeItems?: StoreItem<D,E>[], priorities?: string): StoreItem<D[],E[]>;
 export function mergeStoreItems<D1,E1,D2,E2,D3,E3,D4,E4,D5,E5>(storeItems: [StoreItem<D1,E1>,StoreItem<D2,E2>,StoreItem<D3,E3>,StoreItem<D4,E4>,StoreItem<D5,E5>], priorities?: string): StoreItem<[D1,D2,D3,D4,D5],[E1,E2,E3,E4,E5]>;
 export function mergeStoreItems<D1,E1,D2,E2,D3,E3,D4,E4>(storeItems: [StoreItem<D1,E1>,StoreItem<D2,E2>,StoreItem<D3,E3>,StoreItem<D4,E4>], priorities?: string): StoreItem<[D1,D2,D3,D4],[E1,E2,E3,E4]>;
 export function mergeStoreItems<D1,E1,D2,E2,D3,E3>(storeItems: [StoreItem<D1,E1>,StoreItem<D2,E2>,StoreItem<D3,E3>], priorities?: string): StoreItem<[D1,D2,D3],[E1,E2,E3]>;
@@ -48,6 +45,9 @@ export function mergeStoreItems<D1,E1,D2,E2>(storeItems: [StoreItem<D1,E1>,Store
 export function mergeStoreItems<D1,E1>(storeItems: [StoreItem<D1,E1>], priorities?: string): StoreItem<[D1],[E1]>;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
 export function mergeStoreItems(storeItems: any, priorities = 'e?le:Dl'): StoreItem<any,any> {
+    if(storeItems === undefined) {
+        return new StoreItem();
+    }
     const typedStoreItems = storeItems as StoreItem<unknown,unknown>[];
     const priority = getPriority(typedStoreItems, priorities);
     const merged = new StoreItem();

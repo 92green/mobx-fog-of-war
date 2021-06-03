@@ -22,7 +22,7 @@ const userAndPetFromStore = mergeStoreItems([userFromStore, petFromStore]);
 ### mergeStoreItems
 
 ```jsx
-mergeStoreItems(storeItems: StoreItem[], priorities = 'e?le:Dl'): StoreItem
+mergeStoreItems(storeItems: StoreItem[]|undefined, priorities = 'e?le:Dl'): StoreItem
 ```
 
 #### storeItems
@@ -50,6 +50,10 @@ For example, `priorities="leD"` tells `mergeStoreItems` to do the following:
 - `"D"` - works like `"d"`, except the test only passes when *all* `storeItems` have data.
 
 If no checks pass, normally no loading statuses are set to `true`. However if `"f"` is added to the end of the priorities string then it will output `.hasData = true`.
+
+If an empty array is passed to `mergeStoreItems`, this is treated as though requests were successful, which by default will return a StoreItem with `.hasData = true`.
+
+If `undefined` is passed to `mergeStoreItems`, this is treated as though a request never took place, which by default will return a StoreItem with `.loading = false`, `.hasError = false` and `.hasData = false`.
 
 Additionally there is the ability to have ternary logic, such as `e?le:Dl`. This example can be understood as *"If there is an error, use `le` as the priorities string. If not, use `Dl` as the priorities string"*.
 
