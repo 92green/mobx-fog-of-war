@@ -345,9 +345,7 @@ export class Store<A,D extends NotUndefined,E extends NotUndefined,AA=string> {
     // react hook to get an array of items
     // because React doesn't like side effects during a render
 
-    useBatchGet = (argsArray: A[]|undefined, {dependencies = [], ...restOptions}: UseGetOptions<AA> = {}): StoreItem<D,E>[] => {
-        if(argsArray === undefined) return [];
-
+    useBatchGet = (argsArray: A[]|undefined = [], {dependencies = [], ...restOptions}: UseGetOptions<AA> = {}): StoreItem<D,E>[] => {
         const keys = argsArray.map(args => argsToKey(args));
 
         useEffectVariadic(() => {
@@ -364,6 +362,6 @@ export class Store<A,D extends NotUndefined,E extends NotUndefined,AA=string> {
 
     useGetMany = (argsArray: A[]|undefined, {priorities, ...restOptions}: UseGetManyOptions<AA> = {}): StoreItem<D[],E[]> => {
         const storeItems = this.useBatchGet(argsArray, restOptions);
-        return mergeStoreItems(storeItems, priorities);
+        return mergeStoreItems(argsArray ? storeItems : undefined, priorities);
     };
 }

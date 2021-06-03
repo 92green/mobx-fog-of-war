@@ -53,7 +53,7 @@ describe('getPriority', () => {
 
     it('should return priority for empty array', () => {
         expect(getPriority([], 'led')).toBe('n');
-        expect(getPriority([], 'e?le:Dl')).toBe('n');
+        expect(getPriority([], 'e?le:Dl')).toBe('d');
     });
 
 });
@@ -141,10 +141,10 @@ describe('mergeStoreItems', () => {
             expect(merged.hasError).toBe(false);
         });
 
-        it('should preference empty when given no items', () => {
+        it('should preference data when given no items', () => {
             const merged = mergeStoreItems([]);
             expect(merged.loading).toBe(false);
-            expect(merged.hasData).toBe(false);
+            expect(merged.hasData).toBe(true);
             expect(merged.hasError).toBe(false);
         });
 
@@ -196,6 +196,18 @@ describe('mergeStoreItems', () => {
             expect(merged.hasData).toBe(true);
             expect(merged.hasError).toBe(false);
         });
+    });
+
+    describe('undefined items', () => {
+
+        it('should treat undefined storeItems as a non-request', () => {
+            const merged = mergeStoreItems(undefined);
+
+            expect(merged.loading).toBe(false);
+            expect(merged.hasData).toBe(false);
+            expect(merged.hasError).toBe(false);
+        });
+
     });
 
 });

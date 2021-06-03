@@ -644,13 +644,13 @@ describe('Store', () => {
             expect(items[2] instanceof StoreItem).toBe(true);
         });
 
-        it('should not call useEffect() if called with undefined', () => {
+        it('should still call useEffect() if called with undefined', () => {
             const store = new Store<number,string,string>();
             store.get = jest.fn();
 
             const items = store.useBatchGet(undefined);
             expect(items).toEqual([]);
-            expect(mocked(useEffectVariadic)).toHaveBeenCalledTimes(0);
+            expect(mocked(useEffectVariadic)).toHaveBeenCalledTimes(1);
             expect(mocked(store.get)).toHaveBeenCalledTimes(0);
         });
 
@@ -695,14 +695,28 @@ describe('Store', () => {
             expect(item instanceof StoreItem).toBe(true);
         });
 
-        it('should not call useEffect() if called with undefined', () => {
+        it('should accept empty array and return hasData = true', () => {
+            const store = new Store<number,string,string>();
+            store.get = jest.fn();
+
+            const item = store.useGetMany([]);
+            expect(mocked(useEffectVariadic)).toHaveBeenCalledTimes(1);
+
+            expect(item instanceof StoreItem).toBe(true);
+            expect(item.loading).toBe(false);
+            expect(item.hasData).toBe(true);
+            expect(item.hasError).toBe(false);
+        });
+
+        it('should return blank store item if called with undefined', () => {
             const store = new Store<number,string,string>();
             store.get = jest.fn();
 
             const item = store.useGetMany(undefined);
             expect(item instanceof StoreItem).toBe(true);
-            expect(mocked(useEffectVariadic)).toHaveBeenCalledTimes(0);
-            expect(mocked(store.get)).toHaveBeenCalledTimes(0);
+            expect(item.loading).toBe(false);
+            expect(item.hasData).toBe(false);
+            expect(item.hasError).toBe(false);
         });
 
         it('should call get() with options', () => {
