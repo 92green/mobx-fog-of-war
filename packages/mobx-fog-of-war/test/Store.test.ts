@@ -565,6 +565,45 @@ describe('Store', () => {
         });
     });
 
+    describe('StoreItem.await()', () => {
+
+        it('should turn the observable item returned from a new request() into a pending promise', async () => {
+            const store = new Store<number,string,string>();
+
+            setTimeout(() => {
+                store.setData(1, 'hello');
+            }, 1000);
+
+            const result = await store.request(1).await();
+            expect(result).toBe('hello');
+        });
+
+        it('should turn the observable item returned from a new request() into a pending promise and throw on error', async () => {
+            expect.assertions(1);
+
+            const store = new Store<number,string,string>();
+
+            setTimeout(() => {
+                store.setError(1, 'error');
+            }, 1000);
+
+            try {
+                await store.request(1).await();
+            } catch(e) {
+                expect(e.message).toBe('Could not load data');
+            }
+        });
+
+        it('should turn the observable item returned from an existing get() into a resolved promise', async () => {
+            const store = new Store<number,string,string>();
+
+            store.setData(1, 'hello');
+            const item = store.read(1);
+            const result = await item.await();
+            expect(result).toBe(store.read(1).data);
+        });
+    });
+
     describe('StoreItem.tuple()', () => {
 
         it('should turn the store item into a duple for easy destructuring', async () => {

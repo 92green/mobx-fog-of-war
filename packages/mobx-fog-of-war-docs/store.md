@@ -245,6 +245,12 @@ You can also turn the `StoreItem` into a `Promise` and await the result. Note th
 const userFromStore = await userStore.get('a').promise();
 ```
 
+If you just need the data, use `.await()`. Unlike `.promise()` this *will* throw an error if the request encounters an error.
+
+```typescript
+const user = await userStore.get('a').await();
+```
+
 You can also turn the `StoreItem` into a tuple to access and name `StoreItem`'s data with a one-liner.
 
 ```typescript

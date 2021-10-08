@@ -2,28 +2,28 @@ module.exports = [
     {
         name: 'everything combined',
         path: "dist/mobx-fog-of-war.esm.js",
-        limit: "2.6 KB",
+        limit: "2.7 KB",
         ignore: ['react','mobx','mobx-react']
     },
     {
         name: 'argsToKey',
         path: "dist/mobx-fog-of-war.esm.js",
         import: "{ argsToKey }",
-        limit: "1.8 KB",
+        limit: "1.9 KB",
         ignore: ['react','mobx','mobx-react']
     },
     {
         name: 'asyncRequest',
         path: "dist/mobx-fog-of-war.esm.js",
         import: "{ asyncRequest }",
-        limit: "1.8 KB",
+        limit: "1.9 KB",
         ignore: ['react','mobx','mobx-react']
     },
     {
         name: 'provideStores',
         path: "dist/mobx-fog-of-war.esm.js",
         import: "{ provideStores }",
-        limit: "1.8 KB",
+        limit: "1.9 KB",
         ignore: ['react','mobx','mobx-react']
     },
     {
@@ -37,14 +37,14 @@ module.exports = [
         name: 'rxRequest',
         path: "dist/mobx-fog-of-war.esm.js",
         import: "{ rxRequest }",
-        limit: "1.9 KB",
+        limit: "2.0 KB",
         ignore: ['react','mobx','mobx-react']
     },
     {
         name: 'sortByArgsArray',
         path: "dist/mobx-fog-of-war.esm.js",
         import: "{ sortByArgsArray }",
-        limit: "1.8 KB",
+        limit: "1.9 KB",
         ignore: ['react','mobx','mobx-react']
     },
     {
@@ -65,7 +65,7 @@ module.exports = [
         name: 'Load',
         path: "dist/mobx-fog-of-war.esm.js",
         import: "{ Load }",
-        limit: "2.0 KB",
+        limit: "2.1 KB",
         ignore: ['react','mobx','mobx-react']
     }
 ];

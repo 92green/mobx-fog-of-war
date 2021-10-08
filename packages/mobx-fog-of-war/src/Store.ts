@@ -36,6 +36,14 @@ export class StoreItem<D,E> {
         return promise as Promise<StoreItem<D,E>>;
     };
 
+    await = async (): Promise<D> => {
+        await this.promise();
+        if(this.hasError || !this.hasData) {
+            throw new Error('Could not load data');
+        }
+        return this.data as D;
+    };
+
     tuple = (): StoreItemTuple<D,E> => {
         return [this.data, this];
     };
