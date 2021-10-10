@@ -224,6 +224,9 @@ autorun(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</s
 <p>You can also turn the <code>StoreItem</code> into a <code>Promise</code> and await the result. Note that the promise never rejects - even if the request encounters an error, the promise always resolves.</p>
 <pre><code class="hljs css language-typescript"><span class="hljs-keyword">const</span> userFromStore = <span class="hljs-keyword">await</span> userStore.get(<span class="hljs-string">'a'</span>).promise();
 </code></pre>
+<p>If you just need the data, use <code>.await()</code>. Unlike <code>.promise()</code> this <em>will</em> throw an error if the request encounters an error.</p>
+<pre><code class="hljs css language-typescript"><span class="hljs-keyword">const</span> user = <span class="hljs-keyword">await</span> userStore.get(<span class="hljs-string">'a'</span>).await();
+</code></pre>
 <p>You can also turn the <code>StoreItem</code> into a tuple to access and name <code>StoreItem</code>'s data with a one-liner.</p>
 <pre><code class="hljs css language-typescript"><span class="hljs-keyword">const</span> [user, userFromStore] = <span class="hljs-keyword">await</span> userStore.get(<span class="hljs-string">'a'</span>).tuple();
 </code></pre>
