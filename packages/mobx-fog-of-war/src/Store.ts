@@ -17,7 +17,6 @@ export const createStoreItemPromise = <D,E>(storeItem: StoreItem<D,E>) => (): Pr
     });
 
     autorun(reaction => {
-        console.log('storeASsdfsdf', storeItem.loading, storeItem.data);
         if(!storeItem.loading) {
             /* istanbul ignore next */
             resolver?.();

@@ -35,11 +35,41 @@ describe('MergedStoreItem', () => {
         const merged = new MergedStoreItem({
             storeItems: [empty, error, data, loading],
             mergeData: stores => stores.reduce((str, store) => `${str},${store.data}`, ''),
-            mergeError: stores => stores.find(store => store.error)?.error
+            mergeError: stores => stores.find(store => store.error)?.error,
+            priorities: 'dl'
         });
 
         expect(merged.data).toEqual(`,undefined,undefined,123,undefined`);
         expect(merged.error).toEqual(error.error);
+    });
+
+    it('should return time of most recent item', () => {
+        const t1 = new StoreItem();
+        t1.time = new Date('2026-01-01');
+
+        const t2 = new StoreItem();
+        t2.time = new Date('2027-01-01');
+
+        const t3 = new StoreItem();
+        t3.time = new Date('2025-01-01');
+
+        const merged = new MergedStoreItem({
+            storeItems: [t1, t2, t3],
+            mergeData: stores => stores.reduce((str, store) => `${str},${store.data}`, ''),
+            mergeError: stores => stores.find(store => store.error)?.error
+        });
+
+        expect(merged.time.toISOString()).toBe(t2.time.toISOString());
+    });
+
+    it('should return now time if no store items passed', () => {
+        const merged = new MergedStoreItem({
+            storeItems: [],
+            mergeData: stores => stores.reduce((str, store) => `${str},${store.data}`, ''),
+            mergeError: stores => stores.find(store => store.error)?.error
+        });
+
+        expect(merged.time instanceof Date).toBe(true);
     });
 
     it('should derive mobx changes from source storeitems', () => {

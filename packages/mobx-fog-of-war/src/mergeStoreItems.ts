@@ -89,7 +89,10 @@ export class MergedStoreItem<DM,EM,D=any,E=any> {
         return this.mergeError(this.storeItems);
     }
     get time(): Date {
-        return new Date(Date.now());
+        const times = this.storeItems.map(item => item.time);
+        return times.length > 0
+            ? times.reduce((a, b) => a > b ? a : b)
+            : new Date();
     }
 
     promise: StoreItemGetPromise<DM,EM> = createStoreItemPromise<DM,EM>(this);
