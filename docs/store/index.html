@@ -310,7 +310,7 @@ store.useGetMany(argsArray: A[]?, options?: {}) =&gt; StoreItem
 <ul>
 <li>If <code>undefined</code> is passed as the first argument, no request will take place.</li>
 <li>If an empty array is passed as the first argument, no request will take place but the resulting StoreItem will contain <code>.hasData = true</code>, as though a request succeeded.</li>
-<li>The optional <code>options</code> object can contain <code>priorities: string</code> which are used to determine how loading states are merged; see [mergeStoreItems](Merging StoreItems) for details.</li>
+<li>The optional <code>options</code> object can contain <code>priorities: string</code> which are used to determine how loading states are merged; see <a href="/mobx-fog-of-war/docs/merge">Merging StoreItems</a> for details.</li>
 <li>The optional <code>options</code> object can contain <code>staleTime: number</code> to use a different stale time than the Store's default time. For example <code>{staleTime: 0}</code> can be used to always force a new request.</li>
 <li>The optional <code>options</code> object can contain <code>alias: AA</code>. This creates an alias for the current <code>args</code> that can be looked up via <a href="#storereadalias">readAlias()</a></li>
 <li>The optional <code>options</code> object can contain <code>dependencies: any[]</code> which are passed to the internal <code>useEffect</code> hook. If any dependencies change, <code>get()</code> will be called again with the current <code>args</code>.</li>
