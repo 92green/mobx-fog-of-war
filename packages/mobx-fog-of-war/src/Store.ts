@@ -4,6 +4,41 @@ import {argsToKey} from './argsToKey';
 import {useEffectVariadic} from './useEffectVariadic';
 import {mergeStoreItems} from './mergeStoreItems';
 
+export type StoreItemGetPromise<D,E> = () => Promise<StoreItem<D,E>>;
+export type StoreItemGetAwait<D> = () => Promise<D>;
+export type StoreItemGetTuple<D,E> = () => StoreItemTuple<D,E>;
+
+export const createStoreItemPromise = <D,E>(storeItem: StoreItem<D,E>) => (): Promise<StoreItem<D,E>> => {
+    if(!storeItem.loading) return Promise.resolve(storeItem);
+
+    let resolver: (() => void)|undefined;
+    const promise = new Promise(resolve => {
+        resolver = () => void resolve(storeItem);
+    });
+
+    autorun(reaction => {
+        if(!storeItem.loading) {
+            /* istanbul ignore next */
+            resolver?.();
+            reaction.dispose();
+        }
+    });
+
+    return promise as Promise<StoreItem<D,E>>;
+};
+
+export const createStoreItemAwait = <D,E>(storeItem: StoreItem<D,E>) => async (): Promise<D> => {
+    await storeItem.promise();
+    if(storeItem.hasError || !storeItem.hasData) {
+        throw new Error('Could not load data');
+    }
+    return storeItem.data as D;
+};
+
+export const createStoreItemTuple = <D,E>(storeItem: StoreItem<D,E>) => (): StoreItemTuple<D,E> => {
+    return [storeItem.data, storeItem];
+};
+
 export type StoreItemTuple<D,E> = [
     D|undefined,
     StoreItem<D,E>
@@ -17,36 +52,9 @@ export class StoreItem<D,E> {
     @observable error: E|undefined;
     @observable time = new Date(Date.now());
 
-    promise = (): Promise<StoreItem<D,E>> => {
-        if(!this.loading) return Promise.resolve(this);
-
-        let resolver: (() => void)|undefined;
-        const promise = new Promise(resolve => {
-            resolver = () => void resolve(this);
-        });
-
-        autorun(reaction => {
-            if(!this.loading) {
-                /* istanbul ignore next */
-                resolver?.();
-                reaction.dispose();
-            }
-        });
-
-        return promise as Promise<StoreItem<D,E>>;
-    };
-
-    await = async (): Promise<D> => {
-        await this.promise();
-        if(this.hasError || !this.hasData) {
-            throw new Error('Could not load data');
-        }
-        return this.data as D;
-    };
-
-    tuple = (): StoreItemTuple<D,E> => {
-        return [this.data, this];
-    };
+    promise: StoreItemGetPromise<D,E> = createStoreItemPromise<D,E>(this);
+    await: StoreItemGetAwait<D> = createStoreItemAwait<D,E>(this);
+    tuple: StoreItemGetTuple<D,E> = createStoreItemTuple<D,E>(this); // deprecated
 }
 
 export interface NextRequest<A> {

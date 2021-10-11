@@ -3,35 +3,52 @@ id: merge
 title: Merging StoreItems
 ---
 
-The `mergeStoreItems` helper function allows you to merge together multiple StoreItems, which is useful for when you have multiple store items and need to reduce the loading states into a single loading state. The loading state of the produced StoreItem is derived from the loading states of each of the input StoreItems, and you can define how the variuous combinations of loading states are to be merged using `priorities`.
+The `MergedStoreItem` class allows you to merge together multiple StoreItems, which is useful for when you have multiple store items and need to reduce the loading states into a single loading state. The loading state of the produced StoreItem is derived from the loading states of each of the input StoreItems, and you can define how the variuous combinations of loading states are to be merged using `priorities`.
 
 ```jsx
-import {mergeStoreItems} from 'mobx-fog-of-war';
+import {MergedStoreItem} from 'mobx-fog-of-war';
 
 const userFromStore = userStore.get(userId);
 const petFromStore = petStore.get(petId);
-const userAndPetFromStore = mergeStoreItems([userFromStore, petFromStore]);
+const userAndPetFromStore = new MergedStoreItem({
+    storeItems: [userFromStore, petFromStore],
+    mergeData: storeItems => storeItems.map(item => item.data),
+    mergeError: storeItems => storeItems.find(item => item.error)?.error
+});
 
 // userAndPetFromStore.loading === true if either userFromStore or petFromStore are loading
 // userAndPetFromStore.hasData === true if both userFromStore or petFromStore have data
 // userAndPetFromStore.hasError === true if either userFromStore or petFromStore have an error
 // userAndPetFromStore.data is [userFromStore.data, petFromStore.data]
-// userAndPetFromStore.error is [userFromStore.error, petFromStore.error]
+// userAndPetFromStore.error is an error or undefined
 ```
 
-### mergeStoreItems
+### MergedStoreItem
 
 ```jsx
-mergeStoreItems(storeItems: StoreItem[]|undefined, priorities = 'e?le:Dl'): StoreItem
+MergedStoreItem({
+    storeItems: StoreItem[],
+    mergeData: (storeItems: StoreItem[]) => D,
+    mergeError: (storeItems: StoreItem[]) => E,
+    priorities = 'e?le:Dl'
+)
 ```
 
 #### storeItems
 
 An array of one or more StoreItems.
 
+### mergeData
+
+A function that provides the `storeItems` and allows the data to be merged as desired. The output of this function will be accessible at `mergedStoreItem.data`.
+
+### mergeError
+
+A function that provides the `storeItems` and allows the data to be merged as desired. The output of this function will be accessible at `mergedStoreItem.error`.
+
 #### priorities
 
-The `priorities` argument is a small code (a string) that describes which loading state the output StoreItem should have. It can only contain the uppercase or lowercase characters "l", "e", "d" and "f", which correspond to types of checks against the state of the StoreItems. These are tested one by one from left to right.
+The `priorities` parameter is a small code (a string) that describes which loading state the output StoreItem should have. It can only contain the uppercase or lowercase characters "l", "e", "d" and "f", which correspond to types of checks against the state of the StoreItems. These are tested one by one from left to right.
 
 For example, `priorities="leD"` tells `mergeStoreItems` to do the following:
 

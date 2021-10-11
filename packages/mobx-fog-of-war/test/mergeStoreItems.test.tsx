@@ -84,24 +84,6 @@ describe('mergeStoreItems', () => {
             expect(merged.data).toEqual([empty.data, error.data, data.data, dataString.data, loading.data]);
             expect(merged.error).toEqual([empty.error, error.error, data.error, dataString.error, loading.error]);
         });
-
-        it('should pass through multiple items with TS checks', () => {
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            const mergedData = mergeStoreItems([data, dataString]).data!;
-            const num: number = mergedData[0];
-            const str: string = mergedData[1];
-            expect(num).toBe(data.data);
-            expect(str).toBe(dataString.data);
-        });
-
-        it('should pass through array with TS checks', () => {
-            const items: StoreItem<number,string>[] = [data, data, data];
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            const mergedData = mergeStoreItems(items).data!;
-            const num: number = mergedData[0];
-            expect(num).toBe(data.data);
-        });
-
     });
 
     describe('default priorities', () => {
