@@ -1,4 +1,6 @@
-import {StoreItem} from './Store';
+import {StoreItem, createStoreItemPromise, createStoreItemAwait, createStoreItemTuple} from './Store';
+import type {StoreItemGetPromise, StoreItemGetAwait, StoreItemGetTuple} from './Store';
+import {computed} from 'mobx';
 
 const priorityPropMap = {
     l: 'loading',
@@ -36,6 +38,64 @@ export const getPriority = (storeItems: StoreItem<unknown,unknown>[], priorities
 
     return state.toLowerCase() as Priority;
 };
+
+type MergedStoreItemConfig<DM,EM,D,E> = {
+    storeItems: StoreItem<D,E>[];
+    mergeData: (storeItems: StoreItem<D,E>[]) => DM;
+    mergeError: (storeItems: StoreItem<D,E>[]) => EM;
+    priorities?: string;
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export class MergedStoreItem<DM,EM,D=any,E=any> {
+    storeItems: StoreItem<D,E>[]
+    mergeData: (storeItems: StoreItem<D,E>[]) => DM;
+    mergeError: (storeItems: StoreItem<D,E>[]) => EM;
+    priorities: string;
+
+    constructor(config: MergedStoreItemConfig<DM,EM,D,E>) {
+        const {
+            storeItems,
+            mergeData,
+            mergeError,
+            priorities = 'e?le:Dl'
+        } = config;
+
+        this.storeItems = storeItems;
+        this.mergeData = mergeData;
+        this.mergeError = mergeError;
+        this.priorities = priorities;
+    }
+
+    @computed get _priority(): Priority {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const typedStoreItems = this.storeItems as StoreItem<any,any>[];
+        return getPriority(typedStoreItems, this.priorities);
+    }
+
+    @computed get loading(): boolean {
+        return this._priority === 'l';
+    }
+    @computed get hasData(): boolean {
+        return this._priority === 'd';
+    }
+    @computed get hasError(): boolean {
+        return this._priority === 'e';
+    }
+    @computed get data(): DM {
+        return this.mergeData(this.storeItems);
+    }
+    @computed get error(): EM {
+        return this.mergeError(this.storeItems);
+    }
+    get time(): Date {
+        return new Date(Date.now());
+    }
+
+    promise: StoreItemGetPromise<DM,EM> = createStoreItemPromise<DM,EM>(this);
+    await: StoreItemGetAwait<DM> = createStoreItemAwait<DM,EM>(this);
+    tuple: StoreItemGetTuple<DM,EM> = createStoreItemTuple<DM,EM>(this); // deprecated
+}
 
 export function mergeStoreItems<D,E>(storeItems?: StoreItem<D,E>[], priorities?: string): StoreItem<D[],E[]>;
 export function mergeStoreItems<D1,E1,D2,E2,D3,E3,D4,E4,D5,E5>(storeItems: [StoreItem<D1,E1>,StoreItem<D2,E2>,StoreItem<D3,E3>,StoreItem<D4,E4>,StoreItem<D5,E5>], priorities?: string): StoreItem<[D1,D2,D3,D4,D5],[E1,E2,E3,E4,E5]>;

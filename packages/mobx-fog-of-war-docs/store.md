@@ -358,7 +358,7 @@ The `useGetMany()` method is a React hook very similar to [useBatchGet()](#store
 
 - If `undefined` is passed as the first argument, no request will take place.
 - If an empty array is passed as the first argument, no request will take place but the resulting StoreItem will contain `.hasData = true`, as though a request succeeded.
-- The optional `options` object can contain `priorities: string` which are used to determine how loading states are merged; see [mergeStoreItems](Merging StoreItems) for details.
+- The optional `options` object can contain `priorities: string` which are used to determine how loading states are merged; see [Merging StoreItems](merge.md) for details.
 - The optional `options` object can contain `staleTime: number` to use a different stale time than the Store's default time. For example `{staleTime: 0}` can be used to always force a new request.
 - The optional `options` object can contain `alias: AA`. This creates an alias for the current `args` that can be looked up via [readAlias()](#storereadalias)
 - The optional `options` object can contain `dependencies: any[]` which are passed to the internal `useEffect` hook. If any dependencies change, `get()` will be called again with the current `args`.
