@@ -57,11 +57,6 @@ export class StoreItem<D,E> {
     tuple: StoreItemGetTuple<D,E> = createStoreItemTuple<D,E>(this); // deprecated
 }
 
-export interface NextRequest<A> {
-    args: A;
-    requestId: number;
-}
-
 export type Receive<A,D,E> = {
     args: A;
     data: D;
@@ -74,7 +69,7 @@ export type Logger = (...args: unknown[]) => unknown;
 
 export interface StoreOptions<A,D,E,AA> {
     name?: string;
-    request?: (store: Store<A,D,E,AA>) => void;
+    request?: (store: Store<A,D,E,AA>) => (args: A) => void;
     staleTime?: number;
     log?: Logger;
 }
@@ -109,14 +104,10 @@ export class Store<A,D extends NotUndefined,E extends NotUndefined,AA=string> {
     name: string;
     staleTime: number;
     log: Logger;
+    requester?: (args: A) => void;
 
     @observable cache: Map<string, StoreItem<D,E>> = new Map();
     @observable aliases: Map<string, string> = new Map();
-
-    // nextRequest will change each time there is a new request
-    // chain off it to go fetch some data
-    @observable nextRequest: NextRequest<A>|undefined;
-    requestId = 0;
 
     constructor(options: StoreOptions<A,D,E,AA> = {}) {
         const {
@@ -131,9 +122,7 @@ export class Store<A,D extends NotUndefined,E extends NotUndefined,AA=string> {
         this.log = log;
         this.staleTime = staleTime;
 
-        if(request) {
-            request(this);
-        }
+        this.requester = request?.(this);
     }
 
     @action
@@ -230,13 +219,7 @@ export class Store<A,D extends NotUndefined,E extends NotUndefined,AA=string> {
 
         this.setLoading(args, true);
 
-        this.requestId++;
-
-        // set nextRequest, inserting a new item into the request stream
-        this.nextRequest = {
-            args,
-            requestId: this.requestId
-        };
+        this.requester?.(args);
 
         return this.read(args);
     };
