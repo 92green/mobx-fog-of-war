@@ -1,7 +1,6 @@
 import {Store, StoreItem, argsToKey} from '../src/index';
 import {mocked} from 'ts-jest/utils';
 import React from 'react';
-import {toJS, autorun} from 'mobx';
 
 import {useEffectVariadic} from '../src/useEffectVariadic';
 jest.mock('../src/useEffectVariadic');
@@ -311,7 +310,10 @@ describe('Store', () => {
 
     describe('get() and request()', () => {
         it('should get an item from cache, and fire request()', () => {
-            const store = new Store<number,string,string>();
+            const requestInner = jest.fn();
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const request = jest.fn((_store) => requestInner);
+            const store = new Store<number,string,string>({request});
             store.request = jest.fn(store.request);
 
             const item = store.get(1);
@@ -321,8 +323,11 @@ describe('Store', () => {
             expect(mocked(store.request)).toHaveBeenCalledTimes(1);
             expect(mocked(store.request).mock.calls[0][0]).toBe(1);
 
-            expect(store.nextRequest && store.nextRequest.args).toBe(1);
-            expect(store.nextRequest && store.nextRequest.requestId).toBe(1);
+            expect(mocked(request)).toHaveBeenCalledTimes(1);
+            expect(mocked(request).mock.calls[0][0]).toBe(store);
+            expect(mocked(requestInner)).toHaveBeenCalledTimes(1);
+            expect(mocked(requestInner).mock.calls[0][0]).toBe(1);
+
         });
 
         it('should not request() twice if already requested', () => {
@@ -362,7 +367,10 @@ describe('Store', () => {
         });
 
         it('if staleTime = 0 is set via StoreOptions, should request() again once data was received', () => {
+            const requestInner = jest.fn();
+
             const store = new Store<number,string,string>({
+                request: () => requestInner,
                 staleTime: 0
             });
 
@@ -374,11 +382,16 @@ describe('Store', () => {
 
             expect(mocked(store.request)).toHaveBeenCalledTimes(2);
             expect(mocked(store.request).mock.calls[0][0]).toBe(1);
-            expect(store.nextRequest && store.nextRequest.requestId).toBe(2);
+
+            expect(mocked(requestInner)).toHaveBeenCalledTimes(2);
         });
 
         it('if staleTime = 0 is set via GetOptions, should request() again once data was received', () => {
-            const store = new Store<number,string,string>();
+            const requestInner = jest.fn();
+
+            const store = new Store<number,string,string>({
+                request: () => requestInner
+            });
 
             store.request = jest.fn(store.request);
 
@@ -388,15 +401,18 @@ describe('Store', () => {
 
             expect(mocked(store.request)).toHaveBeenCalledTimes(2);
             expect(mocked(store.request).mock.calls[0][0]).toBe(1);
-            expect(store.nextRequest && store.nextRequest.requestId).toBe(2);
+
+            expect(mocked(requestInner)).toHaveBeenCalledTimes(2);
         });
 
         it('if staleTime = number is set via StoreOptions, should request() again after cached item is older than staleTime', () => {
 
             setNow(0);
+            const requestInner = jest.fn();
 
             const store = new Store<number,string,string>({
-                staleTime: 1
+                staleTime: 1,
+                request: () => requestInner
             });
 
             store.request = jest.fn(store.request);
@@ -419,14 +435,18 @@ describe('Store', () => {
 
             expect(mocked(store.request)).toHaveBeenCalledTimes(2);
             expect(mocked(store.request).mock.calls[0][0]).toBe(1);
-            expect(store.nextRequest && store.nextRequest.requestId).toBe(2);
+
+            expect(mocked(requestInner)).toHaveBeenCalledTimes(2);
         });
 
         it('if staleTime = number is set via GetOptions, should request() again after cached item is older than staleTime', () => {
 
             setNow(0);
+            const requestInner = jest.fn();
 
-            const store = new Store<number,string,string>();
+            const store = new Store<number,string,string>({
+                request: () => requestInner
+            });
 
             store.request = jest.fn(store.request);
 
@@ -448,23 +468,20 @@ describe('Store', () => {
 
             expect(mocked(store.request)).toHaveBeenCalledTimes(2);
             expect(mocked(store.request).mock.calls[0][0]).toBe(1);
-            expect(store.nextRequest && store.nextRequest.requestId).toBe(2);
+            expect(mocked(requestInner)).toHaveBeenCalledTimes(2);
         });
 
         it('request() should always request', () => {
-            const store = new Store<number,string,string>();
-
-            const changes = jest.fn();
-
-            autorun(() => {
-                changes(toJS(store.nextRequest));
+            const requestInner = jest.fn();
+            const store = new Store<number,string,string>({
+                request: () => requestInner
             });
 
             const item = store.request(1);
             store.request(1);
             store.request(1);
 
-            expect(mocked(changes)).toHaveBeenCalledTimes(4); // 3 calls + 1 initial value
+            expect(mocked(requestInner)).toHaveBeenCalledTimes(3);
             expect(item.loading).toBe(true);
         });
     });
