@@ -607,7 +607,7 @@ describe('Store', () => {
             try {
                 await store.request(1).await();
             } catch(e) {
-                expect(e.message).toBe('Could not load data');
+                expect(e).toBe('error');
             }
         });
 

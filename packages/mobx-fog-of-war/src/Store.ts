@@ -30,7 +30,7 @@ export const createStoreItemPromise = <D,E>(storeItem: StoreItem<D,E>) => (): Pr
 export const createStoreItemAwait = <D,E>(storeItem: StoreItem<D,E>) => async (): Promise<D> => {
     await storeItem.promise();
     if(storeItem.hasError || !storeItem.hasData) {
-        throw new Error('Could not load data');
+        throw storeItem.error;
     }
     return storeItem.data as D;
 };
