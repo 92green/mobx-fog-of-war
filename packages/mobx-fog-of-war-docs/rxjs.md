@@ -64,6 +64,30 @@ const commentStore = new Store<string,Comment,Error>({
 });
 ```
 
+## rxRequestEach
+
+The `rxRequestEach` is similar to `rxRequest` in that it accepts an operator that is passed `args`, but instead each request creates its own independent observable. It passes an Rx Observable with `args` as values, and expects to be returned an Rx Observable of data to set on the store. If an error is thrown in the operator, then that error is set on the store.
+
+Many rapid requests will run in parallel to each other.
+
+Here is an example that shows how someone might fetch a user's data:
+
+```typescript
+import {Store, rxRequest} from 'mobx-fog-of-war';
+import {of, from} from 'rxjs';
+import {bufferTime, bufferCount, mergeMap, concatMap, catchError} from 'rxjs/operators';
+
+const userStore = new Store<string,User,Error>({
+    name: 'User Store',
+    request: rxRequestEach(
+        mergeMap(async (id: UserArgs): Promise<User> => {
+            const response = await fetch(`http://example.com/user/${id}`)
+            return new User(await response.json());
+        })
+    )
+});
+```
+
 ## rxBatch (experimental)
 
 The `rxBatch` operator can do buffering and batching for you, including error handling due to failed requests or missing items.

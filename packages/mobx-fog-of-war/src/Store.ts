@@ -67,9 +67,11 @@ export type Receive<A,D,E> = {
 
 export type Logger = (...args: unknown[]) => unknown;
 
+export type StoreOptionsRequest<A,D,E,AA> = (store: Store<A,D,E,AA>) => (args: A) => void;
+
 export interface StoreOptions<A,D,E,AA> {
     name?: string;
-    request?: (store: Store<A,D,E,AA>) => (args: A) => void;
+    request?: StoreOptionsRequest<A,D,E,AA>;
     staleTime?: number;
     log?: Logger;
 }
